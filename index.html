@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Football Win Odds</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--tx:#141a26;--mu:#667085;--bd:#e3e7ef;--hi:#16a34a;--mo:#f59e0b;--lo:#ef4444;--ac:#2f4a89;--track:#e8ecf3}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1119;--card:#161c28;--tx:#e8ecf4;--mu:#8b95a8;--bd:#252d3d;--track:#252d3d;--ac:#6f8fe0}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--bd);padding:12px 16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:1200px;margin:0 auto}
+h1{font-size:18px;margin:0 12px 0 0}
+input,select,button{font:inherit;padding:7px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}
+button{cursor:pointer;background:var(--ac);color:#fff;border:0}
+.chips{max-width:1200px;margin:8px auto 0;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.chip{white-space:nowrap;padding:4px 10px;border-radius:99px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:12px}
+.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{max-width:1200px;margin:0 auto;padding:16px}
+#status,#status2,#status3{color:var(--mu);font-size:13px;margin-bottom:6px}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--mu);margin-bottom:12px;flex-wrap:wrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.tour{margin-bottom:24px}
+.th{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px 12px 0 0;color:#fff;font-weight:600}
+.th small{opacity:.85;font-weight:400;margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;padding:12px;background:var(--card);border:1px solid var(--bd);border-top:0;border-radius:0 0 12px 12px}
+.g{border:1px solid var(--bd);border-radius:12px;padding:12px;background:var(--bg)}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:var(--mu);margin-bottom:8px}
+.badge{padding:1px 8px;border-radius:99px;font-weight:600;font-size:11px;background:var(--track)}
+.badge.live{background:var(--lo);color:#fff}
+.team{display:flex;align-items:center;gap:8px;padding:3px 0;font-weight:600}
+.team img{width:22px;height:22px;object-fit:contain}
+.team .sc{margin-left:auto;font-variant-numeric:tabular-nums}
+.odds{margin-top:10px;display:grid;gap:8px}
+.o .top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
+.bar{position:relative;height:10px;background:var(--track);border-radius:6px}
+.fill{height:100%;border-radius:6px}
+.tick{position:absolute;top:-3px;width:3px;height:16px;background:var(--tx);border-radius:2px;transform:translateX(-1px)}
+.sub{display:flex;gap:6px;align-items:center;font-size:11px;color:var(--mu);margin-top:4px}
+.d{padding:1px 6px;border-radius:6px;color:#fff;font-weight:600}
+.hi{--c:var(--hi)}.mo{--c:var(--mo)}.lo{--c:var(--lo)}
+.fill,.lv{background:var(--c)}
+.lv{color:#fff;padding:1px 6px;border-radius:6px;font-weight:600}
+.none{font-size:12px;color:var(--mu);margin-top:8px}
+.last{margin-top:10px;border-top:1px dashed var(--bd);padding-top:8px}
+.last+.last{margin-top:12px}
+.lh{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--mu);margin-bottom:4px}
+.lh b{color:var(--tx)}
+.lt{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.lt th{font-weight:600;color:var(--mu);text-align:left;padding:2px 4px;border-bottom:1px solid var(--bd)}
+.lt td{padding:3px 4px;border-bottom:1px solid var(--bd)}
+.lt .n,.lt th.n{text-align:center;white-space:nowrap}
+.lt tr.streak td{background:rgba(245,158,11,.14)}
+.ha{display:inline-block;min-width:18px;text-align:center;padding:0 4px;border-radius:5px;font-weight:700;color:#fff}
+.ha.h{background:#2563eb}.ha.a{background:#8b5cf6}
+.res{display:inline-block;width:20px;text-align:center;border-radius:5px;font-weight:700;color:#fff}
+.res.W{background:var(--hi)}.res.D{background:var(--mo)}.res.L{background:var(--lo)}
+.ck{display:flex;align-items:center;gap:5px;font-size:13px;white-space:nowrap}
+.ck input{padding:0;margin:0}
+.star{font-size:14px;margin-right:2px}
+.avg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mu);margin-top:6px}
+.avg b{color:var(--tx)}
+.gd{margin-top:12px;border-top:1px dashed var(--bd);padding-top:10px}
+.gd h4{margin:0 0 8px;font-size:13px;text-align:center}
+.gd .tg{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.gd .tg button{padding:4px 12px;border-radius:99px;font-size:12px;background:var(--track);color:var(--tx);border:0;cursor:pointer}
+.gd .tg button.on{background:var(--tx);color:var(--bg)}
+.gd-team{margin-bottom:8px}
+.gd-row{display:grid;grid-template-columns:84px 28px 1fr;align-items:center;gap:6px;margin:2px 0}
+.gd-lab{display:flex;align-items:center;gap:5px;font-size:12px;min-width:0}
+.gd-lab img{width:18px;height:18px;object-fit:contain}
+.gd-tot{font-weight:700;text-align:right;font-size:13px;font-variant-numeric:tabular-nums}
+.gd-cells{display:grid;grid-template-columns:repeat(3,1fr) 8px repeat(3,1fr)}
+.gd-c{margin:0 1px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums}
+.gd-axis{position:relative;height:14px;margin-top:2px}
+.gd-axis span{position:absolute;transform:translateX(-50%);font-size:10px;color:var(--mu)}
+.gd-foot{font-size:11px;color:var(--mu);margin-top:6px}
+.res2{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mu);margin-top:4px}
+.res2 b{color:var(--tx);font-variant-numeric:tabular-nums}
+.gm{display:inline-block;padding:0 5px;border-radius:5px;font-weight:700;font-size:11px;color:#fff;white-space:nowrap}
+.gm.s{background:var(--hi)}.gm.c{background:var(--lo)}
+.gm.l{background:transparent;box-shadow:inset 0 0 0 1.5px var(--c)}.gm.l.s{--c:var(--hi);color:var(--hi)}.gm.l.c{--c:var(--lo);color:var(--lo)}
+.gm0{color:var(--mu)}
+.lt td.gcell{white-space:normal;min-width:40px}
+.pos{font-size:11px;font-weight:600;padding:0 6px;border-radius:99px;background:var(--track);color:var(--mu);white-space:nowrap}
+.info{background:none;border:0;padding:0 2px;font-size:13px;line-height:1;cursor:pointer;color:inherit}
+.info:hover{transform:scale(1.2)}
+dialog{border:1px solid var(--bd);border-radius:14px;background:var(--card);color:var(--tx);padding:0;width:min(580px,94vw);max-height:88vh;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.dlg-h{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--card);border-bottom:1px solid var(--bd)}
+.dlg-h img{width:30px;height:30px;object-fit:contain}
+.dlg-sub{font-size:12px;color:var(--mu)}
+.dlg-x{margin-left:auto;background:var(--track);color:var(--tx);border-radius:8px;padding:4px 11px}
+.dlg-tabs{display:flex;gap:6px;padding:10px 14px 0}
+.dlg-tabs button{padding:4px 12px;border-radius:99px;font-size:12px;background:var(--track);color:var(--tx);border:0;cursor:pointer}
+.dlg-tabs button.on{background:var(--tx);color:var(--bg)}
+.dlg-b{padding:10px 14px 16px}
+.st-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.st-kpi div{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px;text-align:center}
+.st-kpi b{display:block;font-size:17px}
+.st-kpi span{font-size:11px;color:var(--mu)}
+.st-t{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;margin-top:10px}
+.st-t th{text-align:right;font-size:11px;color:var(--mu);font-weight:600;padding:4px 0;border-bottom:1px solid var(--bd)}
+.st-t th:first-child{text-align:left;font-size:12px;color:var(--tx);text-transform:uppercase;letter-spacing:.04em}
+.st-t td{padding:4px 0;border-bottom:1px solid var(--bd);text-align:right}
+.st-t td:first-child{text-align:left}
+.st-t td:last-child{color:var(--mu);min-width:64px}
+#diag{font-size:12px;color:var(--mu);margin-bottom:10px}
+#diag summary{cursor:pointer}
+#diag h5{margin:8px 0 2px;font-size:12px;color:var(--tx)}
+#diag ul{margin:2px 0 0;padding-left:18px;columns:2;column-gap:24px}
+#diag li.bad{color:var(--lo)}
+@media (max-width:700px){#diag ul{columns:1}}
+.vd{margin-top:12px;border-top:1px dashed var(--bd);padding-top:10px}
+.vd-h{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mu);margin-bottom:6px}
+.vd-h b{color:var(--tx);font-size:13px}
+.vd-b{margin-left:auto;padding:2px 9px;border-radius:99px;color:#fff;font-weight:700;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.vd-b.match{background:var(--hi)}.vd-b.lean{background:var(--mo)}.vd-b.no{background:var(--lo)}
+.vd-b.na{background:var(--track);color:var(--mu)}
+.vd-bar{position:relative;height:6px;background:var(--track);border-radius:4px;margin:0 0 7px}
+.vd-bar span{display:block;height:100%;border-radius:4px}
+.vd-bar i{position:absolute;top:-2px;width:2px;height:10px;background:var(--tx);border-radius:2px;transform:translateX(-1px)}
+.vd-load{display:flex;gap:6px;flex-wrap:wrap;font-size:11px;margin-bottom:6px}
+.vd-l{padding:2px 7px;border-radius:6px;background:var(--track);color:var(--mu);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.vd-l.on{background:rgba(245,158,11,.22);color:var(--tx);box-shadow:inset 0 0 0 1px var(--mo)}
+.vd-l.hot{background:var(--mo);color:#fff;box-shadow:none}
+.vd-mkt{font-size:12px;font-weight:600;margin-bottom:4px}
+.vd-why{font-size:11px;color:var(--mu);line-height:1.55}
+.vd-why em{font-style:normal;color:var(--tx);font-variant-numeric:tabular-nums}
+.gv{margin-top:12px;border-top:1px dashed var(--bd);padding-top:10px}
+.vd-b.gx-fire{background:#dc2626}.vd-b.gx-hi{background:var(--hi)}.vd-b.gx-mid{background:var(--mo)}.vd-b.gx-low{background:var(--ac)}
+.gv-p{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
+.gv-p div{background:var(--track);border-radius:8px;padding:4px 2px;text-align:center;font-size:10px;color:var(--mu)}
+.gv-p b{display:block;font-size:13px;color:var(--tx);font-variant-numeric:tabular-nums}
+.gv-p div.on{box-shadow:inset 0 0 0 1px var(--hi)}
+.hv{margin-top:12px;border-top:1px dashed var(--bd);padding-top:10px}
+.hv .gv-p div small{display:block;font-size:10px;color:var(--mu)}
+.hv .gv-p div.ok{box-shadow:inset 0 0 0 1px var(--hi)}.hv .gv-p div.ko{box-shadow:inset 0 0 0 1px var(--lo)}
+#bt{font-size:12px;color:var(--mu);margin-bottom:10px;border:1px solid var(--bd);border-radius:12px;background:var(--card);padding:8px 12px}
+#bt summary{cursor:pointer;font-weight:600;color:var(--tx)}
+#bt .bt-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+#bt select,#bt input,#bt button{padding:4px 8px;font-size:12px}
+#bt table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:6px}
+#bt th{text-align:right;font-size:11px;color:var(--mu);font-weight:600;padding:3px 4px;border-bottom:1px solid var(--bd)}
+#bt td{text-align:right;padding:3px 4px;border-bottom:1px solid var(--bd);color:var(--tx)}
+#bt th:first-child,#bt td:first-child{text-align:left}
+#bt .good{color:var(--hi);font-weight:700}#bt .bad{color:var(--lo);font-weight:700}
+#bt .note{font-size:11px;line-height:1.5;margin:4px 0}
+#vsum{font-size:12px;color:var(--mu);margin-bottom:10px;line-height:1.6}
+#vsum b{color:var(--tx)}
+#vsum .vs{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--track);margin:0 2px;font-variant-numeric:tabular-nums}
+#vsum .vs.g{background:rgba(22,163,74,.16);color:var(--tx)}
+</style>
+</head>
+<body>
+<header>
+ <div class="row">
+  <h1>⚽ Win Odds</h1>
+  <input type="date" id="date">
+  <input id="q" placeholder="Search team…" style="min-width:150px">
+  <select id="st"><option value="all">All games</option><option value="notstarted">Not started</option><option value="inprogress">Live</option><option value="finished">Finished</option></select>
+  <select id="region" title="Region filter">
+   <option value="europe">🌍 Europe</option>
+   <option value="americas">🌎 Americas (South + North America + Mexico)</option>
+   <option value="rest">🌏 Rest of world (Asia / Africa / Oceania)</option>
+   <option value="all">All regions</option>
+  </select>
+  <select id="sort"><option value="time">Sort: time</option><option value="prob">Sort: top favourite</option><option value="verdict">Sort: verdict score</option><option value="goals">Sort: goals verdict (exp. goals)</option></select>
+  <select id="scope" title="Which divisions to load">
+   <option value="my">My leagues (whitelist)</option>
+   <option value="top2">Top 2 divisions (England: 3)</option>
+   <option value="top2cups">Top 2 divisions + cups</option>
+   <option value="all">All tournaments</option>
+  </select>
+  <label class="ck" title="Home team's last 2+ games were all away AND away team's last 2+ games were all at home"><input type="checkbox" id="onlystar"> ⭐ only</label>
+  <label class="ck" title="1H-rich pattern: both teams' last 5 first halves averaged lots of goals (scored + conceded)"><input type="checkbox" id="fhr"> 💥 1H-rich</label>
+  <label class="ck" title="Verdict engine: show only games where the visitor played 2+ of its last 3 away (MATCH)"><input type="checkbox" id="onlyv"> ✅ verdict</label>
+  <input id="vmin" type="number" min="0" max="100" step="1" placeholder="Verdict ≥" title="Minimum verdict score 0-100 (55 = MATCH, 72 = strong)" style="width:110px">
+  <input id="gmin" type="number" min="0" step="0.1" placeholder="Exp. goals ≥" title="Goals verdict: minimum expected total goals (e.g. 2.8 = HIGH, 3.2 = GOAL FEST)" style="width:120px">
+  <input id="havg" type="number" step="0.1" min="0" placeholder="Home avg goals ≥" title="Home team: average goals scored in its last 3 games" style="width:140px">
+  <input id="aavg" type="number" step="0.1" min="0" placeholder="Away avg goals ≥" title="Away team: average goals scored in its last 3 games" style="width:140px">
+  <input id="minfans" type="number" min="0" value="0" title="Skip tournaments with fewer followers than this (0 = all)" style="width:110px" placeholder="Min followers">
+  <input id="proxy" placeholder="Proxy prefix (optional)" style="min-width:190px">
+  <button id="go">Load</button>
+ </div>
+ <div class="chips" id="chips"></div>
+</header>
+<main>
+ <div id="status"></div>
+ <div id="status2"></div>
+ <div id="blk" hidden style="margin:8px 0;padding:8px 12px;border:1px solid var(--lo);border-radius:10px;font-size:12px"></div>
+ <div id="vsum"></div>
+ <details id="bt"><summary id="bt-sum">📊 Backtest lab</summary>
+  <div class="note">Every not-started game gets its halves prediction saved <b>before kick-off</b> (snapshot). When the game finishes and you load that date, the result is matched to the snapshot. Finished games without a snapshot are scored “retro” (own game removed from the season stats, but later games still leak in – treat as indicative). Data lives in this browser (localStorage).</div>
+  <div class="bt-row"><b>Market</b><select id="bt-m"></select>
+   <b>Source</b><select id="bt-src"><option value="all">snapshot + retro</option><option value="snap">snapshot only (clean)</option><option value="retro">retro only</option></select>
+   <button id="bt-csv">⬇ CSV</button><button id="bt-clear">🗑 Clear</button></div>
+  <div class="bt-row"><b>Filter</b><select id="bt-f1"></select><select id="bt-o1"><option>≥</option><option>≤</option></select><input id="bt-v1" type="number" step="any" style="width:80px">
+   <b>AND</b><select id="bt-f2"></select><select id="bt-o2"><option>≥</option><option>≤</option></select><input id="bt-v2" type="number" step="any" style="width:80px"></div>
+  <div id="bt-res"></div>
+  <div class="bt-row"><button id="bt-scan">🔎 Scan single-feature rules</button><b>min games</b><input id="bt-min" type="number" value="30" min="10" style="width:64px"></div>
+  <div id="bt-scanres"></div>
+ </details>
+ <details id="diag" hidden><summary></summary><div id="diag-body"></div></details>
+ <div class="legend">
+  <span><i class="dot" style="background:var(--hi)"></i>High ≥55%</span>
+  <span><i class="dot" style="background:var(--mo)"></i>Moderate 35–54%</span>
+  <span><i class="dot" style="background:var(--lo)"></i>Low &lt;35%</span>
+  <span>▌ white/black tick = actual %</span>
+  <span>💥 1H-rich (both teams' last-5 first halves ≥1.7 goals/g) · 💥💥 very rich (≥2.0)</span>
+  <span>⚽ 1H goals: <b class="gm s" style="font-size:10px">solid</b> ≤20' · <b class="gm s l" style="font-size:10px">outlined</b> 21'–HT · green scored / red conceded</span>
+  <span>🥅 Goals verdict: 🔥 ≥3.2 · ⚽ ≥2.8 · 🙂 ≥2.4 · 🧊 below (expected total goals) · 🌪️ open game · ⚡ fast start</span>
+  <span><i class="dot" style="background:var(--ac)"></i>Verdict: MATCH = visitor played ≥2 of last 3 away → first-half goals</span>
+ </div>
+ <div id="out"></div>
+</main>
+<dialog id="statdlg"></dialog>
+<script>
+const $=s=>document.querySelector(s);
+const BASE='https://www.sofascore.com/api/v1';
+let tours=new Map(), games=[], oddsMap={}, lastMap={}, activeTour='all', runId=0;
+$('#date').value=new Date().toLocaleDateString('en-CA'); // local YYYY-MM-DD
+
+/* ---------- polite networking (avoid looking like a bot) ---------- */
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const jitter=(a,b)=>a+Math.random()*(b-a);
+let lastStart=0,pausedUntil=0;
+// every request start is spaced 450-900ms apart, regardless of concurrency
+async function throttle(){
+  const now=Date.now();
+  const slot=Math.max(now,lastStart+jitter(450,900),pausedUntil);
+  lastStart=slot;
+  if(slot>now)await sleep(slot-now);
+}
+// tiny sessionStorage cache so reloads don't re-hit the API
+const CACHE_TTL=10*60*1000;
+// slow-changing data is kept in localStorage for longer → far fewer requests on every reload
+const TTLS=[['/incidents',30*864e5],['/statistics/overall',6*36e5],['/goal-distributions',6*36e5],['/events/last/',30*6e4]];   // finished-game incidents never change
+const ttlOf=k=>{for(const [p,t] of TTLS)if(k.includes(p))return t;return CACHE_TTL};
+const storeOf=k=>TTLS.some(([p])=>k.includes(p))?localStorage:sessionStorage;
+const cget=k=>{try{const v=JSON.parse(storeOf(k).getItem('fo:'+k));if(v&&Date.now()-v.t<ttlOf(k))return v.d}catch(e){}return null};
+const cset=(k,d)=>{
+  const w=()=>storeOf(k).setItem('fo:'+k,JSON.stringify({t:Date.now(),d}));
+  try{w()}catch(e){
+    try{                                    // storage full → drop old cache entries (never the backtest data)
+      for(const k2 of Object.keys(localStorage))if(k2.startsWith('fo:')&&k2!=='fo:snap'&&k2!=='fo:bt')localStorage.removeItem(k2);
+      w();
+    }catch(e2){}
+  }
+};
+
+let blocked=false,blocks=0;
+function showBlocked(){
+  const b=$('#blk');b.hidden=false;
+  b.innerHTML='🚫 <b>Sofascore answered 403</b> – its bot protection is refusing requests from this page, so loading was stopped (retrying only makes it worse). Open <b>sofascore.com</b> in this browser, pass any check it shows, wait a few minutes and press <button id="unblock">Retry</button>. Cached data (stats, goal minutes) is still used.';
+  $('#unblock').onclick=()=>{blocked=false;blocks=0;pausedUntil=0;b.hidden=true;load()};
+}
+async function get(u,{cache=true}={}){
+  if(cache){const c=cget(u);if(c)return c}
+  if(blocked)throw new Error('403');
+  let lastErr;
+  for(let attempt=0;attempt<4;attempt++){
+    await throttle();
+    try{
+      const r=await fetch($('#proxy').value+u);
+      if(r.status===403){                       // 403 = bot protection, not a rate limit: stop after a second refusal
+        blocks++;
+        if(blocks>=2){blocked=true;showBlocked();throw new Error('403')}
+        pausedUntil=Date.now()+jitter(20000,30000);status('403 from Sofascore – one more try after a pause…');
+        lastErr=new Error(403);continue;
+      }
+      if(r.status===429){
+        const ra=+r.headers.get('Retry-After');
+        const wait=(ra?ra*1000:jitter(15000,30000))*(attempt+1);
+        pausedUntil=Date.now()+wait;           // pause EVERYTHING, not just this call
+        status(`Rate-limited (${r.status}) – cooling down ${Math.round(wait/1000)}s…`);
+        lastErr=new Error(r.status);continue;
+      }
+      if(r.status===404)throw new Error(404);
+      if(!r.ok){lastErr=new Error(r.status);await sleep(1500*(attempt+1));continue}
+      blocks=0;
+      const j=await r.json();
+      if(cache)cset(u,j);
+      return j;
+    }catch(e){
+      if(String(e.message)==='404'||String(e.message)==='403')throw e;
+      lastErr=e;await sleep(1500*(attempt+1));
+    }
+  }
+  throw lastErr;
+}
+const safe=async(u,o)=>{try{return await get(u,o)}catch(e){return null}};
+// small concurrency; the throttle above is what really paces requests
+const pool=async(items,n,fn,id)=>{let i=0;await Promise.all(Array.from({length:n},async()=>{while(i<items.length&&id===runId){const x=items[i++];await fn(x)}}))};
+
+const status=t=>{$('#status').textContent=t};
+// why is league X (not) on screen? → loaded / 0 games / failed / skipped by the whitelist
+function renderDiag(list,diag,found){
+  const keptIds=new Set(list.map(t=>t.id));
+  const line=t=>{
+    const d=diag[t.id]||{n:0,out:0},nm=`${esc(t.name)} · ${esc(t.category?.name||'')}`;
+    if(d.failed)return `<li class="bad">${nm} – ⚠ request failed (reload to retry)</li>`;
+    return `<li>${nm} – ${d.n} game${d.n===1?'':'s'}${d.out?` (${d.out} on other dates ignored)`:''}</li>`;
+  };
+  const skipped=[...found.values()].filter(t=>!keptIds.has(t.id)).sort((a,b)=>(b.userCount||0)-(a.userCount||0));
+  const nFail=list.filter(t=>diag[t.id]?.failed).length,nGames=list.filter(t=>diag[t.id]?.n>0).length;
+  $('#diag summary').textContent=`Tournaments: ${list.length} matched your leagues (${nGames} with games${nFail?`, ${nFail} failed`:''}) · ${skipped.length} skipped`;
+  $('#diag-body').innerHTML=`<h5>Matched</h5><ul>${list.map(line).join('')}</ul>`+
+    `<h5>Skipped (not in your leagues)</h5><ul>${skipped.map(t=>`<li>${esc(t.name)} · ${esc(t.category?.name||'')} <span title="tournament id">#${[...(t._tids||[])].join(',')}</span></li>`).join('')}</ul>`;
+  $('#diag').hidden=false;
+}
+function bgStatus(){
+  const p=[],f=(n,o)=>o.total&&p.push(`${n} ${o.done}/${o.total}${o.done>=o.total?' ✓':''}`);
+  f('Goal distributions',gd);f('Early goals',inc);f('Standings',stn);f('Goals verdict',gv);
+  $('#status2').textContent=p.join(' · ');
+}
+const lvl=p=>p>=55?'hi':p>=35?'mo':'lo';
+const lvlName={hi:'HIGH',mo:'MODERATE',lo:'LOW'};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dec=f=>{const m=/^(\d+)\/(\d+)$/.exec(f||'');return m?(1+m[1]/m[2]).toFixed(2):'-'};
+const time=ts=>new Date(ts*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+/* ---------- step 1: all tournaments for the day (paginated) ---------- */
+async function loadTournaments(date,id){
+  const found=new Map();let page=1;
+  while(id===runId&&page<=60){
+    status(`Loading tournaments… page ${page} · ${found.size} found`);
+    const d=await get(`${BASE}/sport/football/scheduled-tournaments/${date}/page/${page}`);
+    (d?.scheduled||[]).forEach(s=>{
+      // several "tournaments" (Group A/B…) can share one uniqueTournament → dedupe on the unique id
+      const ut0=s.tournament?.uniqueTournament||s.tournament;
+      if(!ut0||ut0.id==null)return;
+      if(!found.has(ut0.id)){ut0._names=new Set();ut0._tids=new Set();found.set(ut0.id,ut0)}
+      const f=found.get(ut0.id);
+      if(s.tournament?.id!=null)f._tids.add(s.tournament.id);   // tournament id (Sofascore's own id, used by MY_TIDS)
+      if(s.tournament?.name)f._names.add(s.tournament.name);   // e.g. "Premier League" (Israel) vs unique "Israeli Premier League"
+    });
+    if(!d?.hasNextPage)break;
+    page++;
+    await sleep(jitter(700,1500));            // extra human-like pause between pages
+  }
+  return found;
+}
+
+/* ---------- tier filter: keep only the top divisions of each country ---------- */
+const RE_YOUTH=/\bu-?\d{2}\b|youth|junior|reserve|academy|juvenil|primavera|\bii\b/i;
+const RE_WOMEN=/women|femin|femen|femra|frauen|\bliga[ -]f\b|nwsl|damallsvenskan/i;
+const RE_CUP=/cup|copa|coupe|coppa|pokal|beker|ta[cç]a|kupa|supercup|trophy|shield|play-?offs?/i;
+const RE_FRIENDLY=/friendl/i;
+// non-country categories: continental / international competitions are kept as they are
+const NON_COUNTRY=new Set(['africa','world','europe','asia','south-america','north-america','north-central-america','oceania','international']);
+const DIV_LIMIT={england:3};          // League One included for England
+const DEFAULT_LIMIT=2;                // first + second division everywhere else
+/* ---------- MY LEAGUES (edit here to add more) ---------- */
+const norm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+// 1) exact "Tournament name - Country" (matches the tournament name or the unique-tournament name)
+const MY_EXACT=[
+ 'Premier League - England','Serie A - Italy','LaLiga - Spain','Ligue 1 - France','Bundesliga - Germany',
+ 'Campeonato Brasileiro Série A - Brazil','VriendenLoterij Eredivisie - Netherlands','Trendyol Süper Lig - Turkey',
+ 'Stoiximan Super League - Greece','Scottish Premiership - Scotland','FA Cup - England','Taça de Portugal - Portugal',
+ 'Liga MX, Apertura - Mexico','HNL - Croatia','Mozzart Bet Superliga - Serbia','MLS - USA','Championship - England',
+ 'LaLiga 2 - Spain','2. Bundesliga - Germany','Brasileirão Série B - Brazil','Serie B - Italy','Ligue 2 - France',
+ 'Eerste Divisie - Netherlands','1. Lig - Turkey','A-League Men - Australia','Austrian Bundesliga - Austria',
+ 'Premier League - Israel','Chinese Super League - China','Czech First League - Czech Republic','Ekstraklasa - Poland',
+ 'Danish Superliga - Denmark','League One - England','League Two - England','División Profesional - Bolivia',
+ 'Primera División, Clausura - Paraguay','Premier Division - Ireland','J1 League - Japan','Eliteserien - Norway',
+ 'Liga 1, Clausura - Peru','Saudi Pro League - Saudi Arabia','Superliga - Romania','Allsvenskan - Sweden',
+ 'Canadian Premier League - Canada','K League 1 - South Korea','Stars League - Qatar','Niké Liga - Slovakia',
+ 'Ligue 1 - Algeria','Liga Profesional, Clausura - Argentina','Primera B Nacional - Argentina','Primera B - Argentina',
+ 'UEFA Champions League - Europe','UEFA Europa League - Europe','UEFA Conference League - Europe',
+ 'Liga Portugal Betclic - Portugal','Pro League - Belgium','CAF Champions League, Qualification - Africa','Super League - India',
+ 'Premier Division, Relegation/Promotion - Ireland','Swiss Super League - Switzerland','USL Championship - USA','Liga de Primera - Chile','3. Liga - Germany'
+].map(x=>{const i=x.lastIndexOf(' - ');return {name:norm(x.slice(0,i)),country:norm(x.slice(i+3))}});
+// 1b) Sofascore tournament ids (most reliable – wins over every name rule, also over the women/youth exclusion)
+const MY_TIDS=new Set([1,33,36,4,42,83,52,39,62,38,127,54,28,48,1107,3870,18,2,37,41,1449,34,19,40,101,144,29,877,652,64475,
+  49,64,12,3,84,4330,16752,38566,79,5170,82,5,34468,3708,219,24,1060,14193,71367]);
+// 2) fuzzy rules: [country ('*' = any), regex on the normalised (lower-case, no accents) name]
+const MY_FUZZY=[
+ ['colombia',/primera a\b|liga betplay|dimayor/],
+ ['argentina',/liga profesional|primera nacional|primera b nacional/],
+ ['peru',/liga 1\b/],
+ ['romania',/superliga/],
+ ['brazil',/serie [abc]\b|betano/],
+ ['poland',/ekstraklasa/],
+ ['uruguay',/liga auf|uruguaya|primera division/],
+ ['sweden',/superettan/],
+ ['chile',/liga de primera|primera division|copa/],
+ ['*',/sudamericana/],
+ ['egypt',/premier league|league cup/],
+ ['netherlands',/eerste divisie|keuken|^(vriendenloterij )?eredivisie$/],
+ ['usa',/open cup/],
+ ['bulgaria',/efbet|first professional|parva/],
+ ['ecuador',/liga ?pro(?!.*serie b)/],
+ ['italy',/serie c\b/],                         // all Serie C groups share one tournament
+ ['mexico',/liga mx/],
+ ['paraguay',/copa de primera|primera division/],
+ ['australia',/a-league men/],
+ ['france',/coupe de france|copa de francia/],
+ ['costa rica',/primera|promerica/],
+ ['finland',/veikkausliiga|ykk/],
+ ['switzerland',/challenge league/],
+ ['*',/uefa nations league/],
+ ['europe',/^uefa (champions league|europa league|(europa )?conference league)\b/]   // also catches the older "Europa Conference League" name and qualifying rounds
+];
+function isMine(t){
+  if([...(t._tids||[])].some(i=>MY_TIDS.has(i)))return true;
+  const country=norm(t.category?.name);
+  const names=[t.name,...(t._names||[])].map(norm);
+  if(RE_YOUTH.test(names.join(' | '))||RE_WOMEN.test(names.join(' | ')+' '+(t.slug||'')))return false;
+  if(MY_EXACT.some(r=>r.country===country&&names.includes(r.name)))return true;
+  return MY_FUZZY.some(([c,re])=>(c==='*'||c===country)&&names.some(n=>re.test(n)));
+}
+
+function selectTiers(found,mode){
+  const all=[...found.values()];
+  if(mode==='all')return all;
+  if(mode==='my')return all.filter(isMine);
+  const byCat=new Map(),out=[];
+  for(const t of all){
+    const txt=`${t.name||''} ${t.slug||''}`;
+    if(RE_YOUTH.test(txt)||RE_WOMEN.test(txt))continue;            // never youth / women
+    const isCup=RE_CUP.test(txt);
+    const cat=t.category?.slug||('c'+t.category?.id);
+    if(NON_COUNTRY.has(cat)){if(!RE_FRIENDLY.test(txt)&&(!isCup||mode==='top2cups'||/champions|confederation/i.test(txt)))out.push(t);continue}
+    if(isCup){if(mode==='top2cups')out.push(t);continue}           // cups don't count as a division
+    (byCat.get(cat)||byCat.set(cat,[]).get(cat)).push(t);
+  }
+  // inside each country, the most-followed league-like competitions are the top divisions
+  for(const [cat,list] of byCat){
+    list.sort((a,b)=>(b.userCount||0)-(a.userCount||0));
+    out.push(...list.slice(0,DIV_LIMIT[cat]??DEFAULT_LIMIT));
+  }
+  return out;
+}
+
+async function load(){
+  const id=++runId;
+  const date=$('#date').value;
+  tours=new Map();games=[];oddsMap={};lastMap={};activeTour='all';gd=newGd();inc=newInc();stn=newStn();gv=newGv();gamesById={};bgStatus();$('#diag').hidden=true;
+  $('#out').innerHTML='';$('#chips').innerHTML='';
+  let found;
+  try{found=await loadTournaments(date,id)}
+  catch(e){status('Could not load tournaments ('+e.message+'). Likely CORS/blocked – try a proxy prefix or a local server.');return}
+  if(id!==runId)return;
+  if(!found.size){status('No tournaments found for '+date);return}
+
+  const minFans=+$('#minfans').value||0;
+  // most popular first so the big leagues show up early
+  const picked=selectTiers(found,$('#scope').value);
+  const list=picked.filter(t=>(t.userCount||0)>=minFans).sort((a,b)=>(b.userCount||0)-(a.userCount||0));
+  console.log(`Tournaments: ${found.size} found → ${list.length} kept`);
+  const keptIds=new Set(list.map(t=>t.id));
+  // handy to fix a name that didn't match: look for the league here and tell me its country + names
+  console.table([...found.values()].map(t=>({country:t.category?.name,tid:[...(t._tids||[])].join(','),tournament:[...(t._names||[])].join(' / '),unique:t.name,followers:t.userCount,kept:keptIds.has(t.id)})));
+  list.forEach(t=>tours.set(t.id,t));
+
+  /* ---------- step 2: games per tournament ---------- */
+  let done=0;const seen=new Set();
+  // the endpoint can return events of the same round that are NOT on the selected day → keep only the selected local day
+  const [Y,Mo,D]=date.split('-').map(Number);
+  const t0=new Date(Y,Mo-1,D).getTime()/1000,t1=new Date(Y,Mo-1,D+1).getTime()/1000;
+  const dropped=[],diag={};
+  // returns false when the request failed (it is then retried once below, never silently lost)
+  const fetchTour=async t=>{
+    const d=await safe(`${BASE}/unique-tournament/${t.id}/scheduled-events/${date}`);
+    const dg=diag[t.id]=diag[t.id]||{n:0,out:0,failed:false};
+    if(!d||!Array.isArray(d.events)){dg.failed=true;return false}
+    dg.failed=false;
+    d.events.forEach(e=>{
+      if(seen.has(e.id))return;seen.add(e.id);
+      if(!(e.startTimestamp>=t0&&e.startTimestamp<t1)){dropped.push(e);dg.out++;return}
+      e._ut=t;games.push(e);gamesById[e.id]=e;dg.n++;
+    });
+    return true;
+  };
+  await pool(list,2,async t=>{
+    await fetchTour(t);
+    status(`Fetching games… ${++done}/${list.length} tournaments · ${games.length} games`);
+    if(done%5===0||done===list.length)render();
+  },id);
+  const failedT=list.filter(t=>diag[t.id]?.failed);
+  if(failedT.length&&id===runId){
+    status(`${failedT.length} tournament request(s) failed – retrying after a short pause…`);
+    await sleep(jitter(4000,7000));
+    await pool(failedT,1,fetchTour,id);
+    render();
+  }
+  renderDiag(list,diag,found);
+  if(id!==runId)return;
+  if(dropped.length)console.log(`Ignored ${dropped.length} events outside ${date}:`,dropped.map(e=>`${new Date(e.startTimestamp*1000).toLocaleString()} · ${e.tournament?.name} R${e.roundInfo?.round??'?'} · ${e.homeTeam?.name} v ${e.awayTeam?.name} [${e.status?.type}]`));
+  render();
+
+  /* ---------- step 3: last games per team (needed for the ⭐ and the averages) ---------- */
+  const todo=games.filter(g=>g.status?.type!=='canceled');
+  // most popular tournaments first, so the big leagues are complete early
+  const teamIds=[...new Set([...todo].sort((a,b)=>(regionOk(a)?0:1)-(regionOk(b)?0:1)||(b._ut.userCount||0)-(a._ut.userCount||0)).flatMap(g=>[g.homeTeam.id,g.awayTeam.id]))];
+  let m=0;
+  status(`Loading last games… 0/${teamIds.length} teams`);
+  await pool(teamIds,3,async tid=>{
+    const ev=await loadLast(tid);
+    if(id!==runId)return;
+    lastMap[tid]=ev;
+    m++;
+    status(`Loading last games… ${m}/${teamIds.length} teams`);
+    if(m%4===0||m===teamIds.length)render();
+  },id);
+  if(id!==runId)return;
+  gd.on=true;inc.on=true;stn.on=true;gv.on=true;            // goal distributions start loading in the background (only for games on screen)
+  render();
+
+  /* ---------- step 4: odds ---------- */
+  let n=0;
+  await pool(todo,3,async g=>{
+    const o=await safe(`${BASE}/event/${g.id}/provider/1/winning-odds`);
+    if(id!==runId)return;
+    oddsMap[g.id]=o||{};
+    if(++n%6===0||n===todo.length){status(`Fetching odds… ${n}/${todo.length}`);render()}
+  },id);
+  if(id!==runId)return;
+  status(`${games.length} games across ${new Set(games.map(g=>g._ut.id)).size} tournaments · ${date}${dropped.length?` · ${dropped.length} events from other dates ignored (see console)`:''}`);
+  render();
+}
+
+/* ---------- last games helpers ---------- */
+const trimEv=e=>({id:e.id,startTimestamp:e.startTimestamp,
+  homeTeam:{id:e.homeTeam.id,name:e.homeTeam.name,shortName:e.homeTeam.shortName},
+  awayTeam:{id:e.awayTeam.id,name:e.awayTeam.name,shortName:e.awayTeam.shortName},
+  homeScore:{current:e.homeScore?.current,period1:e.homeScore?.period1},
+  awayScore:{current:e.awayScore?.current,period1:e.awayScore?.period1}});
+// returns finished games only (trimmed + cached); null when the request failed
+async function loadLast(tid){
+  const url=`${BASE}/team/${tid}/events/last/0`;
+  const c=cget('L'+url);if(c)return c;
+  const d=await safe(url,{cache:false});
+  if(!d)return null;
+  const ev=(d.events||[]).filter(e=>e.status?.type==='finished').map(trimEv);
+  cset('L'+url,ev);
+  return ev;
+}
+const fmtD=ts=>new Date(ts*1000).toLocaleDateString([], {day:'2-digit',month:'2-digit'});
+// last 5 finished games of `team` played BEFORE game g (the game itself is excluded), oldest → newest
+function history(team,g){
+  const ev=lastMap[team.id];
+  if(!ev)return ev;                       // undefined = still loading, null = failed
+  return ev.filter(e=>e.id!==g.id&&e.startTimestamp<g.startTimestamp)
+    .sort((a,b)=>a.startTimestamp-b.startTimestamp).slice(-5).map(e=>{
+      const home=e.homeTeam.id===team.id,opp=home?e.awayTeam:e.homeTeam;
+      const ht=e.homeScore?.current,at=e.awayScore?.current,hf=e.homeScore?.period1,af=e.awayScore?.period1;
+      const gf=home?ht:at,ga=home?at:ht;
+      return {id:e.id,ts:e.startTimestamp,home,opp:opp.shortName||opp.name,gf,ga,
+        fhgf:home?hf:af,fhga:home?af:hf,
+        fh:`${hf??'-'} - ${af??'-'}`,ft:`${ht??'-'} - ${at??'-'}`,
+        res:(gf==null||ga==null)?'-':gf>ga?'W':gf<ga?'L':'D',run:1};
+    });
+}
+// ⭐ = home team's latest 2+ games were all AWAY  AND  away team's latest 2+ games were all HOME
+function analyze(g){
+  const h=history(g.homeTeam,g),a=history(g.awayTeam,g);
+  if(!h||!a)return {ready:false};
+  const tail=(l,home)=>{let n=0;for(let i=l.length-1;i>=0&&l[i].home===home;i--)n++;return n};
+  const avg=l=>{const x=l.slice(-3).filter(r=>r.gf!=null);return x.length?x.reduce((t,r)=>t+r.gf,0)/x.length:null};
+  const hAway=tail(h,false),aHome=tail(a,true);
+  return {ready:true,h,a,hAway,aHome,star:hAway>=2&&aHome>=2,hAvg:avg(h),aAvg:avg(a)};
+}
+
+
+/* ---------- VERDICT ENGINE ----------
+   Rule from the 112-match study: it is the VISITOR's away-load (not a home "fortress rebound")
+   that moves first-half goals. Candidate filter - validated in-sample only, so use it to rank
+   or confirm a pick, never as a standalone stake signal.
+     gate   : visitor played >=2 of its last 3 matches away
+     score  : 50 base, +/- the weights below; >=55 MATCH, >=72 MATCH (strong)
+     damper : home team road-loaded too, home returning from 2+ straight away, visitor short rest
+     support: home scores in the 1st half at home >=60%, visitor concedes in the 1st half away >=60%
+*/
+const VD={gate:2,minAway:3,minHome:2,lean:55,match:72};
+const vdAway=(l,k)=>l.slice(-k).filter(r=>r.home===false).length;
+function vdStreak(l){let n=0;for(let i=l.length-1;i>=0&&l[i].home===false;i--)n++;return n}
+function vdRate(l,field){const x=l.filter(r=>r[field]!=null);return x.length?x.filter(r=>r[field]>0).length/x.length:null}
+function verdict(g){
+  const h=history(g.homeTeam,g),a=history(g.awayTeam,g);
+  if(h===undefined||a===undefined)return {state:'loading'};
+  if(h===null||a===null)return {state:'failed'};
+  if(a.length<VD.minAway||h.length<VD.minHome)return {state:'thin',nA:a.length,nH:h.length};
+  const v3=vdAway(a,3),v4=vdAway(a,4),v5=vdAway(a,5),h3=vdAway(h,3),hStr=vdStreak(h);
+  let s=50;const why=[];
+  const add=(w,t)=>{s+=w;why.push({w,t})};
+  if(v3>=2)add(18,`visitor ${v3}/3 away`);
+  if(v3>=3)add(8,'visitor 3/3 away');
+  if(v4>=3)add(6,`visitor ${v4}/4 away`);
+  if(v5>=4)add(4,`visitor ${v5}/5 away`);
+  if(h3>=2)add(-12,'home team also road-loaded');
+  if(hStr>=2)add(-6,`home returning from ${hStr} straight away`);
+  const hHome=h.filter(r=>r.home),aAway=a.filter(r=>!r.home);
+  const hr=vdRate(hHome,'fhgf'),vr=vdRate(aAway,'fhga');
+  if(hr!=null&&hHome.filter(r=>r.fhgf!=null).length>=2&&hr>=.6)add(8,`home scores in 1H at home ${Math.round(hr*100)}%`);
+  if(vr!=null&&aAway.filter(r=>r.fhga!=null).length>=2&&vr>=.6)add(8,`visitor concedes in 1H away ${Math.round(vr*100)}%`);
+  const vRest=Math.floor((g.startTimestamp-a[a.length-1].ts)/86400);
+  if(vRest<=3)add(-5,`visitor only ${vRest}d rest`);
+  s=Math.round(Math.max(0,Math.min(100,s)));
+  const gate=v3>=VD.gate;
+  const state=!gate?'no':s>=VD.match?'strong':s>=VD.lean?'match':'lean';
+  return {state,score:s,why,v3,v4,v5,h3,hStr,hr,vr,vRest};
+}
+function vdBlock(v){
+  const head=(cls,txt)=>`<div class="vd-h"><b>Verdict</b><span title="visitor away-load V (last 3/4/5) and home team away-load H (last 3)">📡</span><span class="vd-b ${cls}">${txt}</span></div>`;
+  if(!v||v.state==='loading')return `<div class="vd">${head('na','…')}<div class="vd-why">Waiting for last games…</div></div>`;
+  if(v.state==='failed')return `<div class="vd">${head('na','n/a')}<div class="vd-why">Last games unavailable for one of the teams.</div></div>`;
+  if(v.state==='thin')return `<div class="vd">${head('na','THIN')}<div class="vd-why">Not enough history to judge (visitor ${v.nA} game${v.nA===1?'':'s'}, home ${v.nH}).</div></div>`;
+  const cls=(v.state==='strong'||v.state==='match')?'match':v.state;
+  const txt=v.state==='match'||v.state==='strong'?'MATCH · '+v.score:v.state==='lean'?'LEAN · '+v.score:'NO MATCH';
+  const chip=(lab,val,hot,on)=>`<span class="vd-l ${hot?'hot':on?'on':''}" title="${lab} away games in the last ${lab==='V'?'3/4/5':'3'} window">${lab} ${val}</span>`;
+  const load=`<div class="vd-load">${chip('V',v.v3+'/3',v.v3>=2,v.v3>=1)}${chip('V',v.v4+'/4',v.v4>=3,v.v4>=2)}${chip('V',v.v5+'/5',v.v5>=4,v.v5>=3)}${chip('H',v.h3+'/3',v.h3>=2,v.h3>=1)}</div>`;
+  const bar=`<div class="vd-bar"><span style="width:${v.score}%;background:var(--${cls==='match'?'hi':cls==='lean'?'mo':'lo'})"></span><i style="left:${VD.lean}%" title="MATCH threshold ${VD.lean}"></i></div>`;
+  const mkt=v.state==='strong'
+      ? '<div class="vd-mkt">→ HT Over 1.5 goals · BTTS 1st half · home to score in 1H</div>'
+      : v.state==='match'
+      ? '<div class="vd-mkt">→ HT Over 1.5 goals · BTTS 1st half</div>'
+      : v.state==='lean'
+      ? '<div class="vd-mkt">→ lean only: first-half goals, reduced stake</div>'
+      : `<div class="vd-why">Gate not met — visitor only <em>${v.v3}/3</em> away in its last 3.</div>`;
+  const why=v.why.length?`<div class="vd-why">${v.why.map(x=>`${esc(x.t)} <em>${x.w>0?'+':''}${x.w}</em>`).join(' · ')}</div>`:'';
+  return `<div class="vd">${head(cls,txt)}${load}${bar}${mkt}${why}</div>`;
+}
+
+
+/* ---------- GOALS VERDICT ENGINE ----------
+   Inputs per game (all ids come from the game itself: event id, home/away team id, unique-tournament id, season id):
+     /event/{eventId}/lineups                                              starters (xG/xA per game), formation, missing players
+     /team/{teamId}/unique-tournament/{utId}/season/{seasonId}/statistics/overall   (home + away team)
+     /event/{eventId}/pregame-form                                         last-5 form, points, table position
+   plus data already on this page: last-5 games, goal distribution (0-30'), early goals (<=20'), winning odds.
+   Output: expected total goals (Poisson), P(Over 1.5/2.5/3.5), P(BTTS), tier + tags.
+*/
+const newGv=()=>({map:{},queue:[],queued:new Set(),workers:0,done:0,total:0,on:false});
+let gv=newGv();
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const pois=(k,l)=>{let s=0,t=Math.exp(-l);for(let i=0;i<=k;i++){s+=t;t*=l/(i+1)}return s};
+function parseLU(d){
+  if(!d||!d.home||!d.away)return null;
+  const side=s=>({formation:s.formation||'',
+    st:(s.players||[]).filter(p=>!p.substitute).map(p=>{const b=p.seasonRatingBreakdown||{};
+      return {n:p.player?.shortName||p.player?.name||'',pos:p.position||p.player?.position||'',xg:b.shot?.expectedGoals||0,xa:b.pass?.expectedAssists||0}}),
+    miss:(s.missingPlayers||[]).map(m=>({n:m.player?.shortName||m.player?.name||'',pos:m.player?.position||'',t:m.type,desc:m.description||''}))});
+  return {confirmed:!!d.confirmed,h:side(d.home),a:side(d.away)};
+}
+function parseForm(d){
+  if(!d||!d.homeTeam||!d.awayTeam)return null;
+  const s=t=>({form:t.form||[],pos:t.position,pts:t.value,rating:t.avgRating});
+  return {h:s(d.homeTeam),a:s(d.awayTeam)};
+}
+function tstat(s){
+  const m=s?.matches;if(!m)return null;
+  return {m,gf:s.goalsScored/m,ga:s.goalsConceded/m,xg:(s.expectedGoals??s.goalsScored)/m,sh:(s.shots||0)/m,
+    sota:(s.shotsOnTargetAgainst||0)/m,bca:(s.bigChancesAgainst||0)/m,cs:(s.cleanSheets||0)/m};
+}
+function gvCalc(g){
+  const t=g.status?.type;
+  if(t==='finished'||t==='canceled')return {state:'skip'};
+  if(!g.season?.id)return {state:'noseason'};
+  const R=gv.map[g.id];
+  if(!R)return {state:'loading'};
+  const H=tstat(R.hs),A=tstat(R.as);
+  if(!H||!A)return {state:'nostats'};
+  const why=[],chips=[],tags=[];
+  const att=x=>0.5*x.gf+0.5*x.xg;                  // scoring power: real goals + xG
+  const def=x=>0.6*x.ga+0.4*x.sota*0.30;           // leakiness: goals conceded + shots-on-target faced (~0.30 goals each)
+  let lh=(att(H)+def(A))/2, la=(att(A)+def(H))/2;
+  why.push(`base: ${esc(g.homeTeam.shortName||g.homeTeam.name)} <em>${lh.toFixed(2)}</em> · ${esc(g.awayTeam.shortName||g.awayTeam.name)} <em>${la.toFixed(2)}</em>`);
+  // --- lineups: starters' xG vs team xG/game, missing defenders/keeper
+  const lu=R.lu;
+  if(lu&&lu.h.st.length>=9&&lu.a.st.length>=9){
+    const thr=st=>st.reduce((s,p)=>s+p.xg,0);
+    const rH=clamp(thr(lu.h.st)/H.xg,.85,1.15),rA=clamp(thr(lu.a.st)/A.xg,.85,1.15);
+    lh*=1+(rH-1)*.5;la*=1+(rA-1)*.5;
+    why.push(`XI threat vs season: home <em>${rH.toFixed(2)}×</em> · away <em>${rA.toFixed(2)}×</em>`);
+    const mp=s=>s.miss.reduce((t,m)=>t+(m.t==='doubtful'?.5:1)*(m.pos==='G'?.12:m.pos==='D'?.06:0),0);
+    const addH=Math.min(.3,mp(lu.a)),addA=Math.min(.3,mp(lu.h));   // missing defenders of X → more goals for the opponent
+    lh+=addH;la+=addA;
+    if(addH||addA)why.push(`absences boost: home <em>+${addH.toFixed(2)}</em> · away <em>+${addA.toFixed(2)}</em>`);
+    const cnt=s=>s.miss.filter(m=>m.t!=='doubtful').length,dbt=s=>s.miss.filter(m=>m.t==='doubtful').length;
+    chips.push([`📋 ${lu.h.formation||'?'} v ${lu.a.formation||'?'}${lu.confirmed?'':' (predicted)'}`,lu.confirmed?'on':'']);
+    const defOut=s=>s.miss.filter(m=>m.pos==='D'||m.pos==='G').length;
+    if(cnt(lu.h)||dbt(lu.h)||cnt(lu.a)||dbt(lu.a))chips.push([`🩹 out H ${cnt(lu.h)}${dbt(lu.h)?'+'+dbt(lu.h)+'?':''} · A ${cnt(lu.a)}${dbt(lu.a)?'+'+dbt(lu.a)+'?':''}`,(defOut(lu.h)>=2||defOut(lu.a)>=2)?'hot':'on']);
+  }else chips.push(['📋 no lineup yet','']);
+  // --- home advantage + shrink to league-like mean by sample size
+  lh*=1.05;la*=.95;
+  const mm=Math.min(H.m,A.m),w=Math.min(.85,mm/(mm+4));
+  let lam=w*(lh+la)+(1-w)*2.7,ratio=lh/(lh+la);
+  // --- recent goals: last 5 games of both teams (already loaded on the page)
+  const rt=team=>{const h=history(team,g);if(!h||h.length<3)return null;const x=h.filter(r=>r.gf!=null&&r.ga!=null);return x.length>=3?x.reduce((s,r)=>s+r.gf+r.ga,0)/x.length:null};
+  const rh=rt(g.homeTeam),ra=rt(g.awayTeam);
+  if(rh!=null&&ra!=null){const rec=(rh+ra)/2;lam=.8*lam+.2*rec;chips.push([`🕒 last5 goals/g ${rh.toFixed(1)} · ${ra.toFixed(1)}`,rec>=3.2?'hot':rec>=2.8?'on':'']);}
+  // --- odds mismatch: a clear favourite tends to push the total up
+  const o=oddsMap[g.id],fav=Math.max(o?.home?.expected||0,o?.away?.expected||0);
+  if(fav>=65){lam+=.1;why.push(`clear favourite (${fav}%) <em>+0.10</em>`)}
+  // --- pregame form: only moves WHO scores (home/away split), not the total
+  const F=R.form;
+  if(F){
+    const net=f=>f.form.filter(x=>x==='W').length-f.form.filter(x=>x==='L').length;
+    ratio=clamp(ratio+.02*(net(F.h)-net(F.a)),ratio-.06,ratio+.06);
+    const fc=f=>f.form.map(x=>`<span class="res ${x}" style="width:14px;font-size:10px">${x}</span>`).join('');
+    chips.push([`form H ${F.h.form.join('')} · A ${F.a.form.join('')} · ${F.h.pts}/${F.a.pts} pts · #${F.h.pos}/#${F.a.pos}`,'']);
+  }
+  lam=Math.max(.8,lam);
+  lh=lam*ratio;la=lam-lh;
+  const p15=1-pois(1,lam),p25=1-pois(2,lam),p35=1-pois(3,lam),btts=(1-Math.exp(-lh))*(1-Math.exp(-la));
+  // --- tags
+  const open=H.ga>=1.3&&A.ga>=1.3&&H.sh>=12&&A.sh>=12&&lam>=2.7;
+  if(open)tags.push('🌪️ open game');
+  const hd=gd.map[gdKey(g,g.homeTeam)]?.overall,ad=gd.map[gdKey(g,g.awayTeam)]?.overall;
+  let g30=null;
+  if(hd&&ad&&hd.matches&&ad.matches){
+    const e=d=>(d.sc[0]+d.sc[1]+d.co[0]+d.co[1])/d.matches;g30=(e(hd)+e(ad))/2;
+  }
+  let sum=0,n=0;
+  for(const team of [g.homeTeam,g.awayTeam]){const h=history(team,g);if(!h)continue;for(const r of h.slice(-INC_GAMES)){const d=inc.map[r.id];if(d){sum+=d.filter(x=>x.t<=GOAL_MIN).length;n++}}}
+  const e20=n>=3?sum/n:null;
+  if(g30!=null)chips.push([`⏱ goals ≤30' ${g30.toFixed(2)}/g`,g30>=1.1?'hot':'']);
+  if(e20!=null)chips.push([`⏱ ≤20' recent ${e20.toFixed(2)}/g`,e20>=1?'hot':'']);
+  const fast=lam>=2.6&&((g30!=null&&g30>=1.1)||(e20!=null&&e20>=1));
+  if(fast)tags.push('⚡ fast start likely');
+  const tier=lam>=3.2?'fire':lam>=2.8?'hi':lam>=2.4?'mid':'low';
+  const conf=mm<6?'LOW':(lu&&lu.confirmed)?'HIGH':'MED';
+  return {state:'ok',lam,lh,la,p15,p25,p35,btts,tier,tags,chips,why,conf,open,fast,score:Math.round(clamp((lam-1.8)/2,0,1)*100),mm};
+}
+function gvBlock(g,x){
+  const t=g.status?.type;
+  if(t==='finished'||t==='canceled')return '';
+  x=x||gvCalc(g);
+  const wrap=i=>`<div class="gv" data-gvbox="${g.id}">${i}</div>`;
+  const head=(cls,txt)=>`<div class="vd-h"><b>Goals verdict</b><span title="Expected total goals from lineups + season stats + form + page data (last 5, early goals, odds)">🥅</span><span class="vd-b ${cls}">${txt}</span></div>`;
+  if(x.state==='loading')return wrap(head('na','…')+`<div class="vd-why">${gv.on?'Loading lineups, season stats and form…':'Will load after the last games…'}</div>`);
+  if(x.state==='noseason')return wrap(head('na','n/a')+'<div class="vd-why">No season id for this tournament – can’t fetch team stats.</div>');
+  if(x.state==='nostats')return wrap(head('na','n/a')+'<div class="vd-why">Season statistics unavailable for one of the teams.</div>');
+  if(x.state!=='ok')return '';
+  const L={fire:['🔥 GOAL FEST','gx-fire','→ Over 2.5 · BTTS · look at Over 3.5'],hi:['⚽ HIGH','gx-hi','→ Over 2.5 · BTTS lean'],
+           mid:['🙂 MEDIUM','gx-mid','→ Over 1.5 comfortable · Over 2.5 ≈ coin flip'],low:['🧊 LOW','gx-low','→ Under 2.5 lean · few goals expected']}[x.tier];
+  const pc=v=>Math.round(v*100)+'%';
+  const col=x.tier==='fire'||x.tier==='hi'?'hi':x.tier==='mid'?'mo':'lo';
+  const bar=`<div class="vd-bar"><span style="width:${x.score}%;background:var(--${col})"></span><i style="left:50%" title="HIGH threshold 2.8 goals"></i></div>`;
+  const probs=`<div class="gv-p"><div class="${x.p15>=.8?'on':''}"><b>${pc(x.p15)}</b>Over 1.5</div><div class="${x.p25>=.55?'on':''}"><b>${pc(x.p25)}</b>Over 2.5</div><div class="${x.p35>=.35?'on':''}"><b>${pc(x.p35)}</b>Over 3.5</div><div class="${x.btts>=.55?'on':''}"><b>${pc(x.btts)}</b>BTTS</div></div>`;
+  const chips=`<div class="vd-load">${x.tags.map(s=>`<span class="vd-l hot">${s}</span>`).join('')}${x.chips.map(([s,c])=>`<span class="vd-l ${c}">${s}</span>`).join('')}</div>`;
+  const nm=s=>esc(s.shortName||s.name);
+  const why=`<div class="vd-why">exp. goals ${nm(g.homeTeam)} <em>${x.lh.toFixed(2)}</em> – ${nm(g.awayTeam)} <em>${x.la.toFixed(2)}</em> · total <em>${x.lam.toFixed(2)}</em> · confidence <em>${x.conf}</em> (${x.mm} matches${x.conf==='MED'?', lineup not confirmed':''})<br>${x.why.join(' · ')}</div>`;
+  return wrap(head(L[1],`${L[0]} · ${x.lam.toFixed(1)}`)+bar+probs+chips+`<div class="vd-mkt">${L[2]}</div>`+why);
+}
+function refreshGvBoxes(){document.querySelectorAll('[data-gvbox]').forEach(el=>{const g=gamesById[el.dataset.gvbox];if(g)el.outerHTML=gvBlock(g)});document.querySelectorAll('[data-hvbox]').forEach(el=>{const g=gamesById[el.dataset.hvbox];if(g)el.outerHTML=hvBlock(g)});snapSoon()}
+// fetches lineups + both teams' season stats + pregame form for the games on screen that have not finished
+function ensureGv(list){
+  const G=gv;
+  if(!G.on)return;
+  for(const g of (list||visibleGames())){
+    const t=g.status?.type;
+    if(t==='finished'||t==='canceled'||!g.season?.id)continue;
+    if(g.id in G.map||G.queued.has(g.id))continue;
+    G.queued.add(g.id);G.queue.push(g);G.total++;
+  }
+  while(G.workers<2&&G.queue.length){
+    G.workers++;
+    (async()=>{
+      while(G===gv&&G.queue.length){
+        const g=G.queue.shift(),R={};
+        const ut=utId(g),sid=g.season.id;
+        const stat=async team=>{
+          const k=statKey(g,team);if(k in statMap)return statMap[k];
+          const d=await safe(`${BASE}/team/${team.id}/unique-tournament/${ut}/season/${sid}/statistics/overall`);
+          const s=d?.statistics||null;if(s)statMap[k]=s;return s;
+        };
+        // lineups (trimmed before caching – the raw response is large)
+        const lu=`${BASE}/event/${g.id}/lineups`;
+        R.lu=cget('V'+lu);
+        if(!R.lu){R.lu=parseLU(await safe(lu,{cache:false}));if(R.lu)cset('V'+lu,R.lu)}
+        R.hs=await stat(g.homeTeam);
+        R.as=await stat(g.awayTeam);
+        R.form=parseForm(await safe(`${BASE}/event/${g.id}/pregame-form`));
+        if(G!==gv)break;
+        G.map[g.id]=R;G.done++;bgStatus();
+        const el=document.querySelector(`[data-gvbox="${g.id}"]`);if(el)el.outerHTML=gvBlock(g);
+      }
+      G.workers--;
+    })();
+  }
+}
+
+
+
+/* ---------- 1H-RICH PATTERN: both teams' latest first halves were full of goals (scored OR conceded) ----------
+   per team (last 5 games): a = avg 1H goals in its games (scored+conceded), k = games with >=1 1H goal, k2 = games with >=2.
+   💥   : both teams a >= 1.4 and combined avg >= 1.7   (league average is ~1.2 per game)
+   💥💥 : combined avg >= 2.0, both a >= 1.5 and both teams had 1H goals in >= 4 of their last 5
+   Uses only data already on the page (history rows) and only games BEFORE the match → no leakage, also valid for finished games. */
+const FH_RICH={each:1.4,comb:1.7,each2:1.5,comb2:2.0,k:4};
+function fhTeam(team,g){
+  const h=history(team,g);if(!h)return null;
+  const x=h.slice(-5).filter(r=>r.fhgf!=null&&r.fhga!=null);if(x.length<4)return null;
+  const t=x.map(r=>r.fhgf+r.fhga);
+  return {n:x.length,a:t.reduce((s,v)=>s+v,0)/x.length,k:t.filter(v=>v>=1).length,k2:t.filter(v=>v>=2).length,bt:x.filter(r=>r.fhgf>0&&r.fhga>0).length};
+}
+function fhForm(g){
+  const H=fhTeam(g.homeTeam,g),A=fhTeam(g.awayTeam,g);if(!H||!A)return null;
+  const comb=(H.a+A.a)/2,mn=Math.min(H.a,A.a);let tier=0;
+  if(comb>=FH_RICH.comb&&mn>=FH_RICH.each)tier=1;
+  if(comb>=FH_RICH.comb2&&mn>=FH_RICH.each2&&Math.min(H.k,A.k)>=FH_RICH.k)tier=2;
+  return {H,A,comb,mn,tier};
+}
+function fhFeat(ff){const r=x=>Math.round(x*1000)/1000;return ff?{fa:r(ff.comb),fm:r(ff.mn),fk:Math.min(ff.H.k,ff.A.k),fk2:r((ff.H.k2+ff.A.k2)/(ff.H.n+ff.A.n))}:{fa:null,fm:null,fk:null,fk2:null}}
+function fhEmoji(g){
+  const f=fhForm(g);if(!f||!f.tier)return '';
+  return `<span title="1H-rich: latest first halves averaged ${f.H.a.toFixed(1)} (home) / ${f.A.a.toFixed(1)} (away) goals; 1H goals in ${f.H.k}/${f.H.n} and ${f.A.k}/${f.A.n} games" style="margin-right:4px">${f.tier===2?'💥💥':'💥'}</span>`;
+}
+
+/* ---------- HALVES ENGINE + BACKTEST LAB ----------
+   First-half / second-half goal rates come from the goal-distribution response the page already loads
+   (scored + conceded per 15 min → 0-45' and 45-90' per match, home/away split when >=5 matches).
+   λ(home,1H) = avg(home 1H scored/g , away 1H conceded/g), same for away, shrunk to a league prior, + 15% recent 1H goals.
+   P(BTTS 1H)=(1-e^-λh)(1-e^-λa) · P(O2.5 1H)=1-Poisson(2,λ1H total) · BTTS both halves = P(BTTS 1H)*P(BTTS 2H) (independence assumed → slightly low).
+*/
+const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}};
+let SNAP=lsGet('fo:snap',{}),BT=lsGet('fo:bt',{});
+const s3=(a,o)=>(a[o]||0)+(a[o+1]||0)+(a[o+2]||0);
+function ownOf(g){
+  const hs=g.homeScore||{},as=g.awayScore||{};
+  const h1=hs.period1,a1=as.period1,hf=hs.normal??hs.current,af=as.normal??as.current;
+  if([h1,a1,hf,af].some(x=>x==null))return null;
+  return {h1,a1,h2:hf-h1,a2:af-a1,hf,af};
+}
+function halvesFeat(g,own){
+  const gH=gd.map[gdKey(g,g.homeTeam)],gA=gd.map[gdKey(g,g.awayTeam)];
+  if(gH===undefined||gA===undefined)return {err:'loading'};
+  if(!gH||!gA||!gH.overall||!gA.overall)return {err:'na'};
+  // pick the home/away split when it has >=5 matches (own game excluded if we are scoring a finished game)
+  const rates=(x,ha,mine)=>{                                   // mine = [scored1H,conceded1H,scored2H,conceded2H] of THIS game for that team
+    const pickS=(s)=>{const m=s.matches-(own?1:0);return m>=5};
+    const s=(x[ha]&&pickS(x[ha]))?x[ha]:x.overall;
+    let m=s.matches,a1=s3(s.sc,0),b1=s3(s.co,0),a2=s3(s.sc,3),b2=s3(s.co,3);
+    if(own){m-=1;a1-=mine[0];b1-=mine[1];a2-=mine[2];b2-=mine[3]}
+    if(m<3)return null;
+    return {m,s1:a1/m,c1:b1/m,s2:a2/m,c2:b2/m};
+  };
+  const H=rates(gH,'home',own?[own.h1,own.a1,own.h2,own.a2]:null);
+  const A=rates(gA,'away',own?[own.a1,own.h1,own.a2,own.h2]:null);
+  if(!H||!A)return {err:'thin'};
+  const ms=Math.min(H.m,A.m),w=Math.min(.85,ms/(ms+6));
+  const sh=(raw,prior)=>w*raw+(1-w)*prior;
+  let lh1=sh((H.s1+A.c1)/2,.62),la1=sh((A.s1+H.c1)/2,.5),lh2=sh((H.s2+A.c2)/2,.8),la2=sh((A.s2+H.c2)/2,.68);
+  // recent 1H goals (last 5 games of both teams, both sides of the pitch)
+  const r1=team=>{const h=history(team,g);if(!h)return null;const x=h.filter(r=>r.fhgf!=null&&r.fhga!=null);return x.length>=3?x.reduce((t,r)=>t+r.fhgf+r.fhga,0)/x.length:null};
+  const ra=r1(g.homeTeam),rb=r1(g.awayTeam);
+  if(ra!=null&&rb!=null){const t=lh1+la1,n=.85*t+.15*(ra+rb)/2;lh1*=n/t;la1*=n/t}
+  const l1=lh1+la1,l2=lh2+la2;
+  const b1=(1-Math.exp(-lh1))*(1-Math.exp(-la1)),b2=(1-Math.exp(-lh2))*(1-Math.exp(-la2));
+  const v=verdict(g),gx=gvCalc(g),r3=x=>Math.round(x*1000)/1000;
+  return {ok:true,f:{p1b:r3(b1),p1o15:r3(1-pois(1,l1)),p1o25:r3(1-pois(2,l1)),p2b:r3(b2),pbb:r3(b1*b2),l1h:r3(l1),l2h:r3(l2),
+    hs1:r3(H.s1),hc1:r3(H.c1),as1:r3(A.s1),ac1:r3(A.c1),ms,vs:v.score??null,v3:v.v3??null,h3:v.h3??null,lam:gx.state==='ok'?r3(gx.lam):null,...fhFeat(fhForm(g))}};
+}
+const FEATS={p1b:'P(BTTS 1H)',p1o15:'P(O1.5 1H)',p1o25:'P(O2.5 1H)',p2b:'P(BTTS 2H)',pbb:'P(BTTS both halves)',l1h:'λ goals 1H',l2h:'λ goals 2H',
+  hs1:'Home scores 1H /g',hc1:'Home concedes 1H /g',as1:'Away scores 1H /g',ac1:'Away concedes 1H /g',ms:'Matches played (min)',vs:'Visitor-away verdict score',v3:'Visitor away in last 3',h3:'Home away in last 3',lam:'FT expected goals (snap only)',fa:'Recent 1H goals/g (both teams avg)',fm:'Recent 1H goals/g (lower team)',fk:'Games with 1H goals, last 5 (lower team)',fk2:'Share of last-10 games with ≥2 1H goals'};
+const MKTS={b1:'BTTS 1st half',o15:'Over 1.5 1st half',o25:'Over 2.5 1st half',bb:'BTTS both halves',b2:'BTTS 2nd half',fo25:'Over 2.5 full time',fb:'BTTS full time'};
+function outcomes(g){
+  const o=ownOf(g);if(!o)return null;
+  const b1=o.h1>0&&o.a1>0,b2=o.h2>0&&o.a2>0;
+  return {b1:+b1,o15:+(o.h1+o.a1>=2),o25:+(o.h1+o.a1>=3),b2:+b2,bb:+(b1&&b2),fo25:+(o.hf+o.af>=3),fb:+(o.hf>0&&o.af>0)};
+}
+// snapshot BEFORE kick-off, resolve AFTER full time
+let snapTimer;
+function snapSoon(){clearTimeout(snapTimer);snapTimer=setTimeout(snapNow,700)}
+function snapNow(){
+  let ch=false;
+  for(const g of games){
+    const t=g.status?.type;
+    if(t==='notstarted'&&g.season?.id){
+      const r=halvesFeat(g,null);
+      if(r.ok&&(!SNAP[g.id]||JSON.stringify(SNAP[g.id].f)!==JSON.stringify(r.f))){SNAP[g.id]={ts:g.startTimestamp,f:r.f};ch=true}
+    }
+  }
+  if(ch)lsSet('fo:snap',SNAP);
+  let bch=false;
+  const date=$('#date').value;
+  for(const g of games){
+    if(g.status?.type!=='finished')continue;
+    const prev=BT[g.id];
+    if(prev&&prev.f.fa===undefined){Object.assign(prev.f,fhFeat(fhForm(g)));bch=true}
+    if(prev&&prev.src==='snap')continue;
+    const out=outcomes(g);if(!out)continue;
+    let f,src;
+    if(SNAP[g.id]){f=SNAP[g.id].f;if(f.fa===undefined)f={...f,...fhFeat(fhForm(g))};src='snap'}
+    else{if(prev)continue;const r=halvesFeat(g,ownOf(g));if(!r.ok)continue;f=r.f;src='retro'}
+    BT[g.id]={ts:g.startTimestamp,lg:g._ut?.name||'',h:g.homeTeam.shortName||g.homeTeam.name,a:g.awayTeam.shortName||g.awayTeam.name,src,f,o:out};bch=true;
+  }
+  if(bch){if(!lsSet('fo:bt',BT))console.warn('backtest storage full');}
+  renderBt();
+}
+function hvBlock(g){
+  const t=g.status?.type;if(t==='canceled')return '';
+  const fin=t==='finished';
+  const wrap=i=>`<div class="hv" data-hvbox="${g.id}">${i}</div>`;
+  const head=(cls,txt)=>`<div class="vd-h"><b>Halves verdict</b><span title="From 1st/2nd-half goals scored & conceded per match (goal distribution) + recent 1H goals. Uncalibrated until the Backtest lab has data.">⏱</span><span class="vd-b ${cls}">${txt}</span></div>`;
+  let own=null,out=null;
+  if(fin){own=ownOf(g);if(!own)return '';out=outcomes(g)}
+  let f,tag='';
+  if(fin&&SNAP[g.id]){f=SNAP[g.id].f;tag='snapshot'}
+  else{
+    const r=halvesFeat(g,own);
+    if(r.err==='loading')return wrap(head('na','…')+'<div class="vd-why">Waiting for goal distribution…</div>');
+    if(!r.ok)return wrap(head('na','n/a')+`<div class="vd-why">${r.err==='thin'?'Too few matches for a halves estimate.':'Goal distribution unavailable.'}</div>`);
+    f=r.f;tag=fin?'retro':'';
+  }
+  const pc=v=>Math.round(v*100)+'%',fo=v=>v>0.005?'@'+(1/v).toFixed(2):'';
+  const cls=f.p1b>=.4?'gx-hi':f.p1b>=.3?'gx-mid':'gx-low';
+  const cell=(lab,p,key)=>{const k=out?(out[key]?'ok':'ko'):'';return `<div class="${k}"><b>${pc(p)}${out?(out[key]?' ✓':' ✗'):''}</b>${lab}<small>fair ${fo(p)}</small></div>`};
+  const grid=`<div class="gv-p">${cell('BTTS 1H',f.p1b,'b1')}${cell('Over 1.5 1H',f.p1o15,'o15')}${cell('Over 2.5 1H',f.p1o25,'o25')}${cell('BTTS both halves',f.pbb,'bb')}</div>`;
+  const nm=s=>esc(s.shortName||s.name);
+  const ff=fhForm(g),fhl=ff?`recent 1H goals/g (last 5) · ${nm(g.homeTeam)} <em>${ff.H.a.toFixed(1)}</em> (${ff.H.k}/${ff.H.n} games with 1H goals) · ${nm(g.awayTeam)} <em>${ff.A.a.toFixed(1)}</em> (${ff.A.k}/${ff.A.n})${ff.tier?' → <em>'+(ff.tier===2?'💥💥':'💥')+' 1H-rich</em>':''}<br>`:'';
+  const why=`<div class="vd-why">${fhl}1H goals/g · ${nm(g.homeTeam)} scores <em>${f.hs1.toFixed(2)}</em> / concedes <em>${f.hc1.toFixed(2)}</em> · ${nm(g.awayTeam)} scores <em>${f.as1.toFixed(2)}</em> / concedes <em>${f.ac1.toFixed(2)}</em> · λ 1H <em>${f.l1h.toFixed(2)}</em> · λ 2H <em>${f.l2h.toFixed(2)}</em>${tag?` · <em>${tag}</em>`:''}<br>“fair” = model odds; play only if the bookmaker pays clearly more AND the Backtest lab shows this probability range really hits.</div>`;
+  return wrap(head(cls,`${ff&&ff.tier?(ff.tier===2?'💥💥 ':'💥 '):''}BTTS 1H ${pc(f.p1b)}`)+grid+why);
+}
+/* ---- backtest lab ---- */
+const wilson=(k,n)=>{if(!n)return [0,0];const z=1.96,p=k/n,d=1+z*z/n,c=p+z*z/(2*n),a=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n));return [(c-a)/d,(c+a)/d]};
+const pct1=x=>(x*100).toFixed(1)+'%';
+function btRows(){
+  const src=$('#bt-src').value;
+  return Object.values(BT).filter(r=>src==='all'||r.src===src).sort((a,b)=>a.ts-b.ts);
+}
+const cond=(f,o,v)=>{if(!f||v===''||isNaN(+v))return null;v=+v;return r=>{const x=r.f[f];return x!=null&&(o==='≥'?x>=v:x<=v)}};
+function stat(rows,m){const n=rows.length,k=rows.filter(r=>r.o[m]).length;return {n,k,p:n?k/n:0,ci:wilson(k,n)}}
+function renderBt(){
+  const all=Object.values(BT),sn=all.filter(r=>r.src==='snap').length;
+  $('#bt-sum').textContent=`📊 Backtest lab · ${all.length} finished games (${sn} snapshot · ${all.length-sn} retro) · ${Object.keys(SNAP).length} snapshots stored`;
+  if(!$('#bt').open)return;
+  const m=$('#bt-m').value,rows=btRows();
+  if(!rows.length){$('#bt-res').innerHTML='<div class="note">No finished games stored yet. Load a past date (status finished) – or leave this page open on match days so snapshots are taken before kick-off.</div>';return}
+  const base=stat(rows,m);
+  const c1=cond($('#bt-f1').value,$('#bt-o1').value,$('#bt-v1').value),c2=cond($('#bt-f2').value,$('#bt-o2').value,$('#bt-v2').value);
+  const sel=rows.filter(r=>(!c1||c1(r))&&(!c2||c2(r)));
+  const S=stat(sel,m);
+  const line=(lab,s,hl)=>`<tr><td>${lab}</td><td>${s.n}</td><td>${s.k}</td><td class="${hl||''}">${s.n?pct1(s.p):'–'}</td><td>${s.n?pct1(s.ci[0])+' – '+pct1(s.ci[1]):'–'}</td><td>${s.k?'@'+(s.n/s.k).toFixed(2):'–'}</td></tr>`;
+  const lift=S.n&&base.p?S.p/base.p:0;
+  let h=`<table><thead><tr><th>${MKTS[m]}</th><th>Games</th><th>Hits</th><th>Hit %</th><th>95% range</th><th>Break-even odds</th></tr></thead><tbody>`
+    +line('All games',base)+line('Your filter',S,S.n>=30&&S.ci[0]>base.p?'good':'')+'</tbody></table>';
+  if(S.n)h+=`<div class="note">Filter lift vs all: <b>${lift.toFixed(2)}×</b>. “Break-even odds” = the bookmaker price you need just to not lose long-term; compare it with the real odds. Under ~100 games the range is wide – don’t trust it.</div>`;
+  // model calibration: top k% by the model's own probability for this market
+  const pf={b1:'p1b',o15:'p1o15',o25:'p1o25',bb:'pbb',b2:'p2b',fo25:'lam',fb:null}[m];
+  if(pf){
+    const rr=rows.filter(r=>r.f[pf]!=null).sort((a,b)=>b.f[pf]-a.f[pf]);
+    if(rr.length>=20){
+      let t='<table><thead><tr><th>Model ranking ('+FEATS[pf]+')</th><th>Games</th><th>Hits</th><th>Hit %</th><th>95% range</th><th>Avg model</th></tr></thead><tbody>';
+      for(const q of [.1,.2,.33,.5,1]){
+        const sub=rr.slice(0,Math.max(5,Math.round(rr.length*q))),s=stat(sub,m),av=sub.reduce((x,r)=>x+r.f[pf],0)/sub.length;
+        t+=`<tr><td>${q===1?'all':'top '+Math.round(q*100)+'%'}</td><td>${s.n}</td><td>${s.k}</td><td>${pct1(s.p)}</td><td>${pct1(s.ci[0])} – ${pct1(s.ci[1])}</td><td>${pf==='lam'?av.toFixed(2)+' goals':pct1(av)}</td></tr>`;
+      }
+      h+=t+'</tbody></table><div class="note">If the top slices do not hit clearly more than “all”, the model has no edge for this market. If “Avg model” ≫ “Hit %”, it is over-optimistic.</div>';
+    }
+  }
+  $('#bt-res').innerHTML=h;
+}
+function scanBt(){
+  const m=$('#bt-m').value,rows=btRows(),minN=+$('#bt-min').value||30;
+  if(rows.length<2*minN){$('#bt-scanres').innerHTML=`<div class="note">Need at least ${2*minN} finished games (have ${rows.length}).</div>`;return}
+  const base=stat(rows,m),half=Math.floor(rows.length/2),old=rows.slice(0,half),neu=rows.slice(half);
+  const out=[];
+  for(const f of Object.keys(FEATS)){
+    const vals=rows.map(r=>r.f[f]).filter(x=>x!=null).sort((a,b)=>a-b);
+    if(vals.length<2*minN)continue;
+    for(const q of [.2,.4,.5,.6,.8]){
+      const th=vals[Math.floor(vals.length*q)];
+      for(const o of ['≥','≤']){
+        const c=cond(f,o,th),sel=rows.filter(c);if(sel.length<minN||sel.length>rows.length*.85)continue;
+        const s=stat(sel,m),so=stat(old.filter(c),m),sn=stat(neu.filter(c),m);
+        out.push({f,o,th,s,lift:s.p/(base.p||1),so,sn,score:s.ci[0]});
+      }
+    }
+  }
+  out.sort((a,b)=>b.score-a.score);
+  const top=out.slice(0,10);
+  $('#bt-scanres').innerHTML=top.length?`<table><thead><tr><th>Rule (${MKTS[m]})</th><th>Games</th><th>Hit %</th><th>Lift</th><th>Older half</th><th>Newer half</th></tr></thead><tbody>`+
+    top.map(x=>`<tr><td>${FEATS[x.f]} ${x.o} ${x.th}</td><td>${x.s.n}</td><td>${pct1(x.s.p)}</td><td class="${x.lift>1.15?'good':''}">${x.lift.toFixed(2)}×</td><td>${x.so.n?pct1(x.so.p)+' ('+x.so.n+')':'–'}</td><td class="${x.sn.n&&x.sn.p<base.p?'bad':''}">${x.sn.n?pct1(x.sn.p)+' ('+x.sn.n+')':'–'}</td></tr>`).join('')+
+    `</tbody></table><div class="note">Base rate ${pct1(base.p)}. ${out.length} rules tested → some will look good by pure luck. A real pattern keeps its edge in <b>both</b> halves of the sample; confirm on new snapshots before using it.</div>`:'<div class="note">No rule met the minimum number of games.</div>';
+}
+function csvBt(){
+  const fk=Object.keys(FEATS),mk=Object.keys(MKTS);
+  const L=[['id','date','league','home','away','src',...fk,...mk].join(',')];
+  for(const [id,r] of Object.entries(BT))L.push([id,new Date(r.ts*1000).toISOString().slice(0,10),`"${r.lg}"`,`"${r.h}"`,`"${r.a}"`,r.src,...fk.map(k=>r.f[k]??''),...mk.map(k=>r.o[k]??'')].join(','));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([L.join('\n')],{type:'text/csv'}));a.download='backtest.csv';a.click();
+}
+(function initBt(){
+  const opt=(o,sel)=>Object.entries(o).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+  $('#bt-m').innerHTML=opt(MKTS);
+  const fo='<option value="">—</option>'+opt(FEATS);
+  $('#bt-f1').innerHTML=fo;$('#bt-f2').innerHTML=fo;
+  $('#bt-f1').value='p1b';$('#bt-v1').value='0.4';
+  ['bt-m','bt-src','bt-f1','bt-o1','bt-v1','bt-f2','bt-o2','bt-v2'].forEach(i=>$('#'+i).addEventListener('input',renderBt));
+  $('#bt').addEventListener('toggle',renderBt);
+  $('#bt-scan').onclick=scanBt;$('#bt-csv').onclick=csvBt;
+  $('#bt-clear').onclick=()=>{if(confirm('Delete all stored snapshots and backtest rows?')){SNAP={};BT={};lsSet('fo:snap',SNAP);lsSet('fo:bt',BT);renderBt();$('#bt-scanres').innerHTML=''}};
+  renderBt();
+})();
+
+/* ---------- 1st-half goals of each team's latest games: solid = first GOAL_MIN minutes, outlined = GOAL_MIN+1 → half-time ---------- */
+const GOAL_MIN=20;                         // a goal in minute 20 or earlier is "early" (solid badge)
+const FH_END=45;                           // goals up to 45' (incl. stoppage time) are first-half goals (outlined badge when later than GOAL_MIN)
+const INC_GAMES=5;                         // how many of the latest games per team get their 1H goals loaded (5 = all rows of the table)
+const newInc=()=>({map:{},queue:[],queued:new Set(),workers:0,done:0,total:0,on:false});
+let inc=newInc();
+// incidents → [{t:minute, add:stoppage minutes, side:'h'|'a' (team credited with the goal), cls}] for ALL first-half goals
+function parseGoals(d){
+  if(!d||!Array.isArray(d.incidents))return null;
+  const goals=d.incidents.filter(i=>i.incidentType==='goal')
+    .sort((a,b)=>((a.homeScore??0)+(a.awayScore??0))-((b.homeScore??0)+(b.awayScore??0)));
+  let ph=0,pa=0;const out=[];
+  for(const i of goals){
+    let side;
+    if(i.homeScore!=null&&i.awayScore!=null){            // who scored = whose score went up (handles own goals)
+      side=i.homeScore>ph?'h':i.awayScore>pa?'a':(i.isHome?'h':'a');
+      ph=i.homeScore;pa=i.awayScore;
+    }else side=i.isHome?'h':'a';
+    if(i.time!=null&&i.time<=FH_END)out.push({t:i.time,add:i.addedTime||0,side,cls:i.incidentClass});
+  }
+  return out.sort((a,b)=>a.t-b.t);
+}
+async function loadGoals(eid){
+  const url=`${BASE}/event/${eid}/incidents`;
+  const c=cget('G2'+url);if(c)return c;
+  const d=await safe(url,{cache:false});
+  const out=parseGoals(d);
+  if(out)cset('G2'+url,out);
+  return out;
+}
+function incCell(eid,teamHome){
+  const d=inc.map[eid];
+  if(d===undefined)return inc.on?'<span class="gm0">…</span>':'';
+  if(d===null)return '<span class="gm0" title="incidents unavailable">n/a</span>';
+  if(!d.length)return '<span class="gm0">–</span>';
+  return d.map(x=>{
+    const mine=(x.side==='h')===teamHome;                // green = scored by this team, red = conceded
+    const tag=x.cls==='ownGoal'?' OG':x.cls==='penalty'?' P':'';
+    const late=x.t>GOAL_MIN,min=x.add?`${x.t}+${x.add}`:x.t;
+    return `<span class="gm ${mine?'s':'c'}${late?' l':''}" title="${mine?'scored':'conceded'}${x.cls==='ownGoal'?' (own goal)':x.cls==='penalty'?' (penalty)':''} · ${late?'after '+GOAL_MIN+"' (1st half)":'first '+GOAL_MIN+' min'}">${min}'${tag}</span>`;
+  }).join(' ');
+}
+let incTimer;
+function refreshIncSoon(){
+  clearTimeout(incTimer);
+  incTimer=setTimeout(()=>{
+    document.querySelectorAll('[data-inc]').forEach(el=>{el.innerHTML=incCell(el.dataset.inc,el.dataset.home==='1')});
+    refreshGvBoxes();
+  },250);
+}
+// only for the latest INC_GAMES games of the teams in the games currently on screen
+function ensureInc(list){
+  const G=inc;
+  if(!G.on)return;
+  for(const g of (list||visibleGames())){
+    for(const team of [g.homeTeam,g.awayTeam]){
+      const h=history(team,g);if(!h)continue;
+      for(const r of h.slice(-INC_GAMES)){
+        if(r.id in G.map||G.queued.has(r.id))continue;
+        G.queued.add(r.id);G.queue.push(r.id);G.total++;
+      }
+    }
+  }
+  while(G.workers<2&&G.queue.length){
+    G.workers++;
+    (async()=>{
+      while(G===inc&&G.queue.length){
+        const eid=G.queue.shift();
+        const out=await loadGoals(eid);
+        if(G!==inc)break;
+        G.map[eid]=out;
+        G.done++;
+        bgStatus();
+        refreshIncSoon();
+      }
+      G.workers--;
+    })();
+  }
+}
+
+function lastBlock(team,list){
+  const name=esc(team.shortName||team.name);
+  const head=`<div class="lh"><b>Last 5 · ${name}</b><span>H home · A away · 🔥 2+ in a row</span></div>`;
+  if(list===undefined)return `<div class="last">${head}<div class="none">Loading last games…</div></div>`;
+  if(list===null)return `<div class="last">${head}<div class="none">Last games unavailable</div></div>`;
+  if(!list.length)return `<div class="last">${head}<div class="none">No finished games found</div></div>`;
+  list.forEach((r,i)=>{
+    let s=i,e=i;
+    while(s>0&&list[s-1].home===r.home)s--;
+    while(e<list.length-1&&list[e+1].home===r.home)e++;
+    r.run=e-s+1;
+  });
+  const rows=list.slice().reverse().map((r,idx)=>`<tr class="${r.run>=2?'streak':''}">
+    <td>${fmtD(r.ts)}</td>
+    <td><span class="ha ${r.home?'h':'a'}">${r.home?'H':'A'}</span>${r.run>=2?` <span title="${r.run} consecutive ${r.home?'home':'away'} games">🔥${r.run}</span>`:''}</td>
+    <td>${esc(r.opp)}</td><td class="n">${r.fh}</td><td class="n"><b>${r.ft}</b></td><td class="n"><span class="res ${r.res}">${r.res}</span></td><td class="n gcell"${idx<INC_GAMES?` data-inc="${r.id}" data-home="${r.home?1:0}"`:''}>${idx<INC_GAMES?incCell(r.id,r.home):''}</td></tr>`).join('');
+  return `<div class="last">${head}<table class="lt"><thead><tr><th>Date</th><th>H/A</th><th>Opponent</th><th class="n">FH</th><th class="n">FT</th><th class="n" title="1st-half goals of the ${INC_GAMES} latest games (both teams). Solid = first ${GOAL_MIN} minutes, outlined = after ${GOAL_MIN}' until half-time. Green = scored by this team, red = conceded.">⚽ 1H goals</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function oddsBlock(side,label,o){
+  if(!o)return '';
+  const e=o.expected,a=o.actual,l=lvl(e),dl=a-e;
+  const dc=dl>=2?'var(--hi)':dl<=-2?'var(--lo)':'var(--mu)';
+  const dt=dl>=2?`▲ above +${dl}`:dl<=-2?`▼ under ${dl}`:'≈ in line';
+  return `<div class="o ${l}"><div class="top"><b>${label}</b><span>${esc(o.fractionalValue)} · ${dec(o.fractionalValue)}</span></div>
+  <div class="bar"><div class="fill" style="width:${e}%"></div><div class="tick" style="left:${a}%"></div></div>
+  <div class="sub"><span class="lv">${lvlName[l]}</span><span>Exp <b>${e}%</b> · Act <b>${a}%</b></span><span class="d" style="background:${dc}">${dt}</span></div></div>`;
+}
+
+/* ---------- goal distribution ---------- */
+const newGd=()=>({map:{},queue:[],queued:new Set(),workers:0,done:0,total:0,on:false});
+let gd=newGd();const gdMode={};            // per game: 'all' (default) | 'ha' (home team at home / away team away)
+const utId=g=>g.tournament?.uniqueTournament?.id??g._ut.id;
+const gdKey=(g,team)=>`${team.id}:${utId(g)}:${g.season?.id}`;
+function parseGd(d){
+  if(!d||!Array.isArray(d.goalDistributions))return null;
+  const out={};
+  for(const x of d.goalDistributions){
+    const ps=(x.periods||[]).slice().sort((a,b)=>a.periodStart-b.periodStart);
+    const six=Array.from({length:6},(_,i)=>ps[i]||{});
+    out[x.type]={matches:x.matches,scored:x.scoredGoals,conceded:x.concededGoals,
+      sc:six.map(p=>p.scoredGoals??0),co:six.map(p=>p.concededGoals??0)};
+  }
+  return out.overall?out:null;
+}
+let gdTimer;
+function refreshGdSoon(){
+  clearTimeout(gdTimer);
+  gdTimer=setTimeout(()=>{
+    document.querySelectorAll('[data-gdbox]').forEach(el=>{
+      const g=games.find(x=>x.id==el.dataset.gdbox);if(g)el.outerHTML=gdBlock(g);
+    });
+    refreshGvBoxes();
+  },250);
+}
+// fetches goal distributions only for the games currently visible (respects every filter)
+function ensureGd(list){
+  const G=gd;
+  if(!G.on)return;
+  for(const g of (list||visibleGames())){
+    if(!g.season?.id)continue;
+    for(const team of [g.homeTeam,g.awayTeam]){
+      const k=gdKey(g,team);
+      if(k in G.map||G.queued.has(k))continue;
+      G.queued.add(k);G.queue.push({k,team,g});G.total++;
+    }
+  }
+  while(G.workers<2&&G.queue.length){
+    G.workers++;
+    (async()=>{
+      while(G===gd&&G.queue.length){
+        const {k,team,g}=G.queue.shift();
+        const d=await safe(`${BASE}/team/${team.id}/unique-tournament/${utId(g)}/season/${g.season.id}/goal-distributions`);
+        if(G!==gd)break;
+        G.map[k]=parseGd(d);
+        G.done++;
+        bgStatus();
+        refreshGdSoon();
+      }
+      G.workers--;
+    })();
+  }
+}
+function gdTeam(team,d){
+  const nm=esc(team.shortName||team.name);
+  if(d===undefined)return `<div class="gd-team"><div class="none">${nm}: loading goal distribution…</div></div>`;
+  if(!d)return `<div class="gd-team"><div class="none">${nm}: goal distribution unavailable</div></div>`;
+  const logo=`<img loading="lazy" src="https://api.sofascore.com/api/v1/team/${team.id}/image" onerror="this.style.visibility='hidden'" alt="">`;
+  const row=(label,vals,total,rgb,txt)=>{
+    const mx=Math.max(...vals,1);
+    const cells=vals.map((v,i)=>{
+      const a=.18+.82*v/mx;
+      return (i===3?'<span></span>':'')+`<div class="gd-c" style="background:rgba(${rgb},${a.toFixed(2)});color:${a>.55?'#fff':txt}">${v}</div>`;
+    }).join('');
+    return `<div class="gd-row"><span class="gd-lab">${logo}${label}</span><span class="gd-tot" style="color:${txt}">${total}</span><div class="gd-cells">${cells}</div></div>`;
+  };
+  return `<div class="gd-team">${row('Scored',d.sc,d.scored,'34,160,90','#1e8a4c')}${row('Conceded',d.co,d.conceded,'200,60,50','#b3382d')}</div>`;
+}
+function gdBlock(g){
+  const mode=gdMode[g.id]||'all';
+  const tg=`<div class="tg"><button class="${mode==='all'?'on':''}" data-gd="all" data-g="${g.id}">All</button><button class="${mode==='ha'?'on':''}" data-gd="ha" data-g="${g.id}">Home / Away</button></div>`;
+  let inner;
+  if(!g.season?.id)inner='<div class="none">Goal distribution not available</div>';
+  else if(!gd.on)inner='<div class="none">Goal distribution will load after the last games…</div>';
+  else{
+    const hs=gd.map[gdKey(g,g.homeTeam)],as=gd.map[gdKey(g,g.awayTeam)];
+    const hd=hs===undefined?undefined:hs&&(mode==='all'?hs.overall:hs.home)||null;
+    const ad=as===undefined?undefined:as&&(mode==='all'?as.overall:as.away)||null;
+    const axis=[0,15,30,45,60,75,90].map((m,i)=>{
+      const off=i<3?0:i===3?4:8;
+      return `<span style="left:calc((100% - 8px) * ${i} / 6 + ${off}px)">${String(m).padStart(2,'0')}'</span>`;
+    }).join('');
+    inner=gdTeam(g.homeTeam,hd)+gdTeam(g.awayTeam,ad)+
+      `<div class="gd-row"><span></span><span></span><div class="gd-axis">${axis}</div></div>`+
+      (hd&&ad?`<div class="gd-foot">Goals scored / conceded per 15 min · ${esc(g.homeTeam.shortName||g.homeTeam.name)} (${hd.matches} ${mode==='all'?'matches':'home matches'}) and ${esc(g.awayTeam.shortName||g.awayTeam.name)} (${ad.matches} ${mode==='all'?'matches':'away matches'}) · ${esc(g.season?.name||g._ut.name)}</div>`:'');
+  }
+  return `<div class="gd" data-gdbox="${g.id}"><h4>Goal distribution</h4>${tg}${inner}</div>`;
+}
+
+/* ---------- league position (standings) ---------- */
+const newStn=()=>({map:{},queue:[],queued:new Set(),workers:0,done:0,total:0,on:false});
+let stn=newStn(),gamesById={};
+const posKey=g=>`${utId(g)}:${g.season?.id}`;
+function parseStand(d){
+  if(!d||!Array.isArray(d.standings))return null;
+  const m={};
+  for(const t of d.standings)for(const r of (t.rows||[])){
+    if(r.team&&!(r.team.id in m))m[r.team.id]={pos:r.position,pts:r.points,p:r.matches,w:r.wins,d:r.draws,l:r.losses,gf:r.scoresFor,ga:r.scoresAgainst,grp:t.name};
+  }
+  return Object.keys(m).length?m:null;
+}
+function posHtml(g,team){
+  const r=stn.map[posKey(g)]?.[team.id];
+  if(!r)return '';
+  return `<span class="pos" title="${r.pts} pts · ${r.p} played · ${r.w}W ${r.d}D ${r.l}L · ${r.gf}:${r.ga}${r.grp?' · '+esc(r.grp):''}">pos ${r.pos}</span>`;
+}
+let posTimer;
+function refreshPosSoon(){
+  clearTimeout(posTimer);
+  posTimer=setTimeout(()=>{
+    document.querySelectorAll('.posw').forEach(el=>{
+      const g=gamesById[el.dataset.g];if(!g)return;
+      el.innerHTML=posHtml(g,el.dataset.t==g.homeTeam.id?g.homeTeam:g.awayTeam);
+    });
+  },250);
+}
+// one request per tournament+season, only for the games on screen
+function ensureStand(list){
+  const G=stn;
+  if(!G.on)return;
+  for(const g of (list||visibleGames())){
+    if(!g.season?.id)continue;
+    const k=posKey(g);
+    if(k in G.map||G.queued.has(k))continue;
+    G.queued.add(k);G.queue.push({k,ut:utId(g),season:g.season.id});G.total++;
+  }
+  while(G.workers<2&&G.queue.length){
+    G.workers++;
+    (async()=>{
+      while(G===stn&&G.queue.length){
+        const {k,ut,season}=G.queue.shift();
+        const d=await safe(`${BASE}/unique-tournament/${ut}/season/${season}/standings/total`);
+        if(G!==stn)break;
+        G.map[k]=parseStand(d);
+        G.done++;
+        bgStatus();
+        refreshPosSoon();
+      }
+      G.workers--;
+    })();
+  }
+}
+
+/* ---------- ℹ️ season statistics dialog ---------- */
+// [label, key, mode, denominator]  n = total + per game · ratio = "a / b" + % · pct = value is already a %
+const STAT_GROUPS=[
+ ['Attack',[['Goals scored','goalsScored','n'],['Expected goals (xG)','expectedGoals','n'],['Shots','shots','n'],
+  ['Shots on target','shotsOnTarget','ratio','shots'],['Shots inside the box','shotsFromInsideTheBox','ratio','shots'],
+  ['Big chances','bigChances','n'],['Big chances missed','bigChancesMissed','n'],['Goals from inside the box','goalsFromInsideTheBox','ratio','goalsScored'],
+  ['Headed goals','headedGoals','n'],['Penalty goals','penaltyGoals','ratio','penaltiesTaken'],
+  ['Successful dribbles','successfulDribbles','ratio','dribbleAttempts'],['Fast break goals','fastBreakGoals','ratio','fastBreaks'],
+  ['Corners','corners','n'],['Hit woodwork','hitWoodwork','n']]],
+ ['Passing & possession',[['Average possession','averageBallPossession','pct'],['Accurate passes','accuratePasses','ratio','totalPasses'],
+  ['Opposition-half passes','accurateOppositionHalfPasses','ratio','totalOppositionHalfPasses'],['Long balls','accurateLongBalls','ratio','totalLongBalls'],
+  ['Crosses','accurateCrosses','ratio','totalCrosses'],['Key passes','keyPasses','n'],['Assists','assists','n']]],
+ ['Defending',[['Goals conceded','goalsConceded','n'],['Clean sheets','cleanSheets','ratio','matches'],['Shots against','shotsAgainst','n'],
+  ['Shots on target against','shotsOnTargetAgainst','n'],['Big chances against','bigChancesAgainst','n'],['Corners against','cornersAgainst','n'],
+  ['Saves','saves','n'],['Goals prevented','goalsPrevented','n'],['Tackles','tackles','n'],['Interceptions','interceptions','n'],
+  ['Clearances','clearances','n'],['Errors leading to goal','errorsLeadingToGoal','n']]],
+ ['Duels',[['Duels won','duelsWon','ratio','totalDuels'],['Ground duels won','groundDuelsWon','ratio','totalGroundDuels'],['Aerial duels won','aerialDuelsWon','ratio','totalAerialDuels']]],
+ ['Discipline',[['Fouls','fouls','n'],['Yellow cards','yellowCards','n'],['Red cards','redCards','n'],['Offsides','offsides','n']]]
+];
+function statsHtml(s,g,team){
+  const m=s.matches||0;
+  const r=stn.map[posKey(g)]?.[team.id];
+  const kpi=[['Position',r?'#'+r.pos:'–'],['Matches',m||'–'],['Goals for : against',`${s.goalsScored??'-'} : ${s.goalsConceded??'-'}`],
+    ['xG / game',m&&s.expectedGoals!=null?(s.expectedGoals/m).toFixed(2):'–'],['Possession',s.averageBallPossession!=null?s.averageBallPossession.toFixed(0)+'%':'–'],
+    ['Avg rating',s.avgRating!=null?s.avgRating.toFixed(2):'–']];
+  let h=`<div class="st-kpi">${kpi.map(([l,v])=>`<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`;
+  for(const [title,rows] of STAT_GROUPS){
+    let tr='';
+    for(const [label,key,mode,den] of rows){
+      const v=s[key];if(v==null)continue;
+      let a,b='';
+      if(mode==='n'){a=Number.isInteger(v)?v:v.toFixed(1);b=m?(v/m).toFixed(2):''}
+      else if(mode==='ratio'){const dv=s[den];a=`${v} / ${dv??'-'}`;b=dv?Math.round(v/dv*100)+'%':'–'}
+      else{a=v.toFixed(1)+'%'}
+      tr+=`<tr><td>${label}</td><td>${a}</td><td>${b}</td></tr>`;
+    }
+    if(tr)h+=`<table class="st-t"><thead><tr><th>${title}</th><th>Season</th><th>Per game / rate</th></tr></thead><tbody>${tr}</tbody></table>`;
+  }
+  return h;
+}
+let dlgState=null;const statMap={};
+const statKey=(g,t)=>`${t.id}:${utId(g)}:${g.season.id}`;
+function renderDlg(s){
+  const {g,team}=dlgState;
+  const tabs=[g.homeTeam,g.awayTeam].map(t=>`<button class="${t.id===team.id?'on':''}" data-tab="${t.id}">${esc(t.shortName||t.name)}</button>`).join('');
+  const body=s===undefined?'<div class="none">Loading season statistics…</div>':s===null?'<div class="none">Statistics unavailable for this team / season.</div>':statsHtml(s,g,team);
+  $('#statdlg').innerHTML=`<div class="dlg-h"><img src="https://api.sofascore.com/api/v1/team/${team.id}/image" onerror="this.style.visibility='hidden'" alt=""><div><b>${esc(team.name)}</b><div class="dlg-sub">${esc(g._ut.name)} · ${esc(g.season?.name||'')}</div></div><button id="dlg-close" class="dlg-x" aria-label="Close">✕</button></div><div class="dlg-tabs">${tabs}</div><div class="dlg-b">${body}</div>`;
+}
+async function showStats(g,team){
+  dlgState={g,team};
+  const dlg=$('#statdlg'),k=statKey(g,team);
+  renderDlg(k in statMap?statMap[k]:undefined);
+  if(!dlg.open)dlg.showModal();
+  if(k in statMap)return;
+  const d=await safe(`${BASE}/team/${team.id}/unique-tournament/${utId(g)}/season/${g.season.id}/statistics/overall`);
+  const s=d?.statistics||null;
+  if(s)statMap[k]=s;                      // failures are not cached, so reopening retries
+  if(dlgState&&dlgState.team.id===team.id&&dlgState.g.id===g.id)renderDlg(s);
+}
+
+function card(g,an){
+  const o=oddsMap[g.id],t=g.status?.type,live=t==='inprogress';
+  const sc=s=>(t==='notstarted'||s?.current==null)?'':s.current;
+  const tm=x=>`<div class="team"><img loading="lazy" src="https://api.sofascore.com/api/v1/team/${x.t.id}/image" onerror="this.style.visibility='hidden'" alt=""><span>${esc(x.t.shortName||x.t.name)}</span><span class="posw" data-g="${g.id}" data-t="${x.t.id}">${posHtml(g,x.t)}</span>${g.season?.id?`<button class="info" data-g="${g.id}" data-t="${x.t.id}" title="Season statistics">ℹ️</button>`:''}<span class="sc">${sc(x.s)}</span></div>`;
+  let body;
+  if(o===undefined)body='<div class="none">Loading odds…</div>';
+  else if(!o.home&&!o.away)body='<div class="none">No winning odds available</div>';
+  else body=`<div class="odds">${oddsBlock('h',esc(g.homeTeam.shortName||g.homeTeam.name)+' (Home)',o.home)}${oddsBlock('a',esc(g.awayTeam.shortName||g.awayTeam.name)+' (Away)',o.away)}</div>`;
+  const f=v=>v==null?'-':v.toFixed(2);
+  const star=an.ready&&an.star?`<span class="star" title="Home team: last ${an.hAway} games away · Away team: last ${an.aHome} games at home">⭐</span>`:'';
+  const avg=an.ready?`<div class="avg"><span>Goals scored (last 3) · ${esc(g.homeTeam.shortName||g.homeTeam.name)}: <b>${f(an.hAvg)}</b></span><span>${esc(g.awayTeam.shortName||g.awayTeam.name)}: <b>${f(an.aAvg)}</b></span></div>`:'';
+  // HT / FT result (period1 = first half; "normal" = 90 minutes, falls back to the current score)
+  const hs_=g.homeScore||{},as_=g.awayScore||{};
+  const pair=(a,b)=>(a==null||b==null)?null:`${a} - ${b}`;
+  const ht=pair(hs_.period1,as_.period1);
+  const ft=pair(hs_.normal??hs_.current,as_.normal??as_.current);
+  const pens=pair(hs_.penalties,as_.penalties);
+  const firstHalf=g.status?.code===6;           // first half in progress → HT not reached yet
+  let resLine='';
+  if(t==='finished')resLine=`<div class="res2"><span>HT <b>${ht??'-'}</b></span><span>FT <b>${ft??'-'}</b></span>${pens?`<span>Pens <b>${pens}</b></span>`:''}</div>`;
+  else if(live&&ht&&!firstHalf)resLine=`<div class="res2"><span>HT <b>${ht}</b></span></div>`;
+  const v=an&&an.v?an.v:verdict(g);
+  return `<div class="g"><div class="meta"><span>${star}${fhEmoji(g)}${fmtD(g.startTimestamp)} ${time(g.startTimestamp)}${g.roundInfo?.round?' · Round '+g.roundInfo.round:''}${g.venue?.name?' · '+esc(g.venue.name):''}</span><span class="badge ${live?'live':''}">${esc(g.status?.description||'')}</span></div>
+  ${tm({t:g.homeTeam,s:g.homeScore})}${tm({t:g.awayTeam,s:g.awayScore})}${resLine}${avg}${gvBlock(g,an&&an.gv)}${hvBlock(g)}${vdBlock(v)}${body}${gdBlock(g)}${lastBlock(g.homeTeam,an.ready?an.h:history(g.homeTeam,g))}${lastBlock(g.awayTeam,an.ready?an.a:history(g.awayTeam,g))}</div>`;
+}
+
+function maxProb(g){const o=oddsMap[g.id]||{};return Math.max(o.home?.expected||0,o.away?.expected||0)}
+
+/* ---------- region filter ---------- */
+const R_AM=new Set(['argentina','bolivia','brazil','chile','colombia','ecuador','paraguay','peru','uruguay','venezuela','guyana','suriname',
+ 'usa','canada','mexico','costa rica','honduras','guatemala','el salvador','panama','nicaragua','belize','jamaica','trinidad and tobago','haiti','cuba',
+ 'dominican republic','puerto rico','south america','north & central america','north and central america','north-central-america','north america','concacaf','conmebol']);
+const R_EU=new Set(['europe','england','scotland','wales','northern ireland','ireland','italy','spain','france','germany','portugal','netherlands','belgium','luxembourg',
+ 'switzerland','austria','liechtenstein','denmark','sweden','norway','finland','iceland','faroe islands','poland','czech republic','slovakia','hungary','romania',
+ 'bulgaria','serbia','croatia','slovenia','bosnia & herzegovina','bosnia and herzegovina','montenegro','north macedonia','albania','kosovo','greece','turkey','cyprus',
+ 'malta','israel','russia','ukraine','belarus','moldova','lithuania','latvia','estonia','georgia','armenia','azerbaijan','kazakhstan','andorra','san marino','gibraltar']);
+function regionOf(g){
+  if(g._reg)return g._reg;
+  const c=g._ut?.category,n=norm(c?.name),sl=norm(c?.slug);
+  return g._reg=(R_AM.has(n)||R_AM.has(sl))?'americas':(R_EU.has(n)||R_EU.has(sl))?'europe':'rest';
+}
+const regionOk=g=>{const r=$('#region').value;return r==='all'||regionOf(g)===r};
+
+function filtered(an){
+  const q=$('#q').value.toLowerCase(),st=$('#st').value;
+  const onlyStar=$('#onlystar').checked,hMin=parseFloat($('#havg').value),aMin=parseFloat($('#aavg').value);
+  const onlyV=$('#onlyv').checked,vMin=parseFloat($('#vmin').value),gMin=parseFloat($('#gmin').value);
+  // all active filters are combined with AND
+  return games.filter(g=>{
+    if(!regionOk(g))return false;
+    if(!((st==='all'||g.status?.type===st)&&(!q||(g.homeTeam.name+g.awayTeam.name).toLowerCase().includes(q))))return false;
+    const x=an[g.id]=analyze(g);
+    const v=x.v=verdict(g);const gx=x.gv=gvCalc(g);
+    if(!isNaN(gMin)&&!(gx.state==='ok'&&gx.lam>=gMin))return false;
+    if($('#fhr').checked&&!(fhForm(g)?.tier))return false;
+    if(onlyV&&!(v.state==='match'||v.state==='strong'))return false;
+    if(!isNaN(vMin)&&!(v.score>=vMin))return false;
+    if(onlyStar&&!(x.ready&&x.star))return false;
+    if(!isNaN(hMin)&&!(x.ready&&x.hAvg!=null&&x.hAvg>=hMin))return false;
+    if(!isNaN(aMin)&&!(x.ready&&x.aAvg!=null&&x.aAvg>=aMin))return false;
+    return true;
+  });
+}
+function visibleGames(){return filtered({}).filter(g=>activeTour==='all'||g._ut.id==activeTour)}
+function render(){render0();const v=visibleGames();ensureGd(v);ensureInc(v);ensureStand(v);ensureGv(v);snapSoon()}
+function render0(){
+  const so=$('#sort').value;
+  const vs=g=>{const v=an[g.id]?.v||{};const r=v.state==='strong'?4:v.state==='match'?3:v.state==='lean'?2:v.state==='no'?1:0;return r*1000+(v.score||0)};
+  const filtering=$('#fhr').checked||$('#onlystar').checked||$('#onlyv').checked||!isNaN(parseFloat($('#havg').value))||!isNaN(parseFloat($('#aavg').value))||!isNaN(parseFloat($('#vmin').value))||!isNaN(parseFloat($('#gmin').value));
+  const an={};
+  let list=filtered(an);
+  const counts={};list.forEach(g=>counts[g._ut.id]=(counts[g._ut.id]||0)+1);
+  $('#chips').innerHTML=`<button class="chip ${activeTour==='all'?'on':''}" data-t="all">All (${list.length})</button>`+
+    Object.keys(counts).map(id=>`<button class="chip ${activeTour==id?'on':''}" data-t="${id}">${esc(tours.get(+id).name)} (${counts[id]})</button>`).join('');
+  if(activeTour!=='all')list=list.filter(g=>g._ut.id==activeTour);
+  const by={};list.forEach(g=>(by[g._ut.id]??=[]).push(g));
+  const vc=s=>list.filter(g=>an[g.id]?.v?.state===s).length;
+  const nm=vc('match')+vc('strong');
+  $('#vsum').innerHTML=list.length?`<b>Verdict engine</b> · on screen: `
+    +`<span class="vs g">${nm} MATCH</span><span class="vs">${vc('lean')} lean</span>`
+    +`<span class="vs">${vc('no')} no match</span><span class="vs">${list.length-nm-vc('lean')-vc('no')} pending</span>`
+    +` — visitor played ≥2 of its last 3 away → first-half goals, damped when the home side is road-loaded too. Candidate filter, in-sample only.`
+    :'';
+  const gc=k=>list.filter(g=>an[g.id]?.gv?.tier===k&&an[g.id].gv.state==='ok').length;
+  const gsum=list.some(g=>an[g.id]?.gv?.state==='ok')?`<br><b>Goals verdict</b> · on screen: <span class="vs g">🔥 ${gc('fire')}</span><span class="vs g">⚽ ${gc('hi')}</span><span class="vs">🙂 ${gc('mid')}</span><span class="vs">🧊 ${gc('low')}</span> — expected total goals (Poisson) from lineups, season stats, form, last 5, early-goal splits and odds. Not-started/live games only.`:'';
+  if(gsum)$('#vsum').innerHTML+=gsum;
+  $('#out').innerHTML=Object.keys(by).sort((x,y)=>(tours.get(+y).userCount||0)-(tours.get(+x).userCount||0)).map(id=>{
+    const t=tours.get(+id),gs=by[id].sort((a,b)=>so==='goals'?(an[b.id].gv.lam||0)-(an[a.id].gv.lam||0):so==='verdict'?vs(b)-vs(a):so==='prob'?maxProb(b)-maxProb(a):a.startTimestamp-b.startTimestamp);
+    const col=t.primaryColorHex||t.secondaryColorHex||'#2f4a89';
+    return `<section class="tour"><div class="th" style="background:${col}"><span>${esc(t.name)}</span><small>${esc(t.category?.name||'')} · ${gs.length} game${gs.length>1?'s':''}</small></div><div class="grid">${gs.map(g=>card(g,an[g.id])).join('')}</div></section>`;
+  }).join('')||(games.length?'<div class="none">No games match the filters.'+(filtering&&Object.keys(lastMap).length<new Set(games.flatMap(g=>[g.homeTeam.id,g.awayTeam.id])).size?' (last games are still loading – results will appear as they load)':'')+'</div>':'');
+}
+
+$('#go').onclick=load;
+$('#region').addEventListener('input',()=>{activeTour='all';render()});
+$('#statdlg').addEventListener('click',e=>{
+  const dlg=$('#statdlg');
+  if(e.target===dlg||e.target.closest('#dlg-close')){dlg.close();return}      // ✕ or click on the backdrop (Esc also works)
+  const tb=e.target.closest('[data-tab]');
+  if(tb&&dlgState){const g=dlgState.g;showStats(g,tb.dataset.tab==g.homeTeam.id?g.homeTeam:g.awayTeam)}
+});
+$('#statdlg').addEventListener('close',()=>{dlgState=null});
+$('#out').addEventListener('click',e=>{
+  const ib=e.target.closest('.info');
+  if(ib){const g0=gamesById[ib.dataset.g];if(g0)showStats(g0,ib.dataset.t==g0.homeTeam.id?g0.homeTeam:g0.awayTeam);return}
+  const b=e.target.closest('[data-gd]');if(!b)return;
+  const g=games.find(x=>x.id==b.dataset.g);if(!g)return;
+  gdMode[g.id]=b.dataset.gd;                     // Home/Away uses the same response (home + away types), no extra call
+  const box=b.closest('[data-gdbox]');if(box)box.outerHTML=gdBlock(g);
+});
+['q','st','sort','onlystar','havg','aavg','onlyv','vmin','gmin','fhr'].forEach(i=>$('#'+i).addEventListener('input',render));
+$('#chips').onclick=e=>{const t=e.target.dataset?.t;if(t){activeTour=t;render()}};
+load();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a519491a4cdb9112',t:'MTc5MzE4MzY0MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
